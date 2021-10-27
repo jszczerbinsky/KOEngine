@@ -77,8 +77,7 @@ typedef struct Entity_{
 
   Collider collider;  
 
-  unsigned char parametersType;
-  void *parameters;
+  void (*loopCall)(struct Entity_ *ent);
 } Entity;
 
 #endif

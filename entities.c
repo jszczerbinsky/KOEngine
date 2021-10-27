@@ -67,6 +67,8 @@ float GetRotation(Entity *ent)
 
 bool CheckAnyCollision(Entity *ent)
 {
+	if(ent->collider.verticesCount == 0) return false;
+
 	for(unsigned char layer = 0; layer < LAYER_MAX; layer++)
 		for(Entity *e = entList[layer]; e; e = e->next)
 		{
@@ -136,8 +138,7 @@ Entity *SpawnEntity(float x, float y, unsigned short width, unsigned short heigh
 	ent->actualAnimation = NULL;
 	ent->onAnimationEnd = NULL;
 	ent->flip = SDL_FLIP_NONE;
-	ent->parametersType = 0;
-	ent->parameters = NULL;
+	ent->loopCall = NULL;
 
 	ent->prev = NULL;
 	ent->next = NULL;
@@ -150,7 +151,6 @@ Entity *SpawnEntity(float x, float y, unsigned short width, unsigned short heigh
 void KillEntity(Entity *entity)
 {
 	if(entity->ui != NULL) free(entity->ui);
-	if(entity->parameters != NULL) free(entity->parameters);
 
 	if(entity->prev != NULL)
 		entity->prev->next = entity->next;
@@ -208,6 +208,8 @@ void renderEntities(App *app)
 	{
 		for(Entity *e = entList[layer]; e; e = e->next)
 		{
+			if(e->loopCall != NULL)
+				(*e->loopCall)(e);	
 			if(e->actualAnimation != NULL)
 			{
 				e->animationCounter += Delay * e->actualAnimation->speed;

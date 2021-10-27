@@ -130,12 +130,15 @@ void KOEngineInit(char *windowName, void (*onStartPtr)(), void (*loopCallPtr)())
 	{
     frameInit();
 		getInput();
-		Delay = (SDL_GetTicks()-timer)/1000.0f;
+		int ticks = SDL_GetTicks();
+		Delay = (ticks-timer)/1000.0f;
 		timer = SDL_GetTicks();	
+		int waitFor = 8-ticks;
+		if(waitFor < 0) waitFor = 0;
+		SDL_Delay(waitFor);
 		(*loopCallPtr)();
 		renderEntities(&app);
 		frameShow();
-		SDL_Delay(16);
 	}
 }
 
