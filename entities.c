@@ -208,8 +208,17 @@ void renderEntities(App *app)
 	{
 		for(Entity *e = entList[layer]; e; e = e->next)
 		{
-			if(e->loopCall != NULL)
-				(*e->loopCall)(e);	
+			Vector2D pos = GetPosition(e);
+
+			if(!e->ui &&
+					(
+						pos.x + e->width/2 < camPos.x - app->resX/2 ||
+						pos.x - e->width/2 > camPos.x + app->resX/2 ||
+						pos.y + e->height/2 < camPos.y - app->resY/2 ||
+						pos.y - e->height/2 > camPos.y + app->resY/2
+					)
+				) continue;
+
 			if(e->actualAnimation != NULL)
 			{
 				e->animationCounter += Delay * e->actualAnimation->speed;
@@ -222,8 +231,6 @@ void renderEntities(App *app)
 				if(ended && e->onAnimationEnd != NULL) (*e->onAnimationEnd)(e, e->actualAnimation);
 				e->actualTexture = e->actualAnimation->textures[(int)(e->animationCounter)];
 			}
-
-			Vector2D pos = GetPosition(e);
 
 			SDL_Rect dest;
 
@@ -242,6 +249,11 @@ void renderEntities(App *app)
 			SDL_RenderCopyEx(app->renderer, e->actualTexture, NULL, &dest, GetRotation(e), NULL, e->flip);
 
 			if(e->ui) renderText(pos, e->height, e->ui, app);
+
+			if(e->loopCall != NULL)
+				(*e->loopCall)(e);	
+
+
 		}
 	}
 }
