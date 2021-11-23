@@ -229,7 +229,7 @@ void renderEntities(App *app)
 					ended = true;
 				}
 				if(ended && e->onAnimationEnd != NULL) (*e->onAnimationEnd)(e, e->actualAnimation);
-				e->actualTexture = e->actualAnimation->textures[(int)(e->animationCounter)];
+				if(e->actualAnimation) e->actualTexture = e->actualAnimation->textures[(int)(e->animationCounter)];
 			}
 
 			SDL_Rect dest;
@@ -276,4 +276,5 @@ void StopPlaying(Entity *ent)
 {
 	ent->actualAnimation = NULL;
 	ent->flip = SDL_FLIP_NONE;
+	ent->actualTexture = ent->defaultTexture;
 }
