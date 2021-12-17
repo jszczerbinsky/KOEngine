@@ -78,6 +78,9 @@ typedef struct Entity_{
   Collider collider;  
 
   void (*loopCall)(struct Entity_ *ent);
+
+  int extensionType;
+  void *extension;
 } Entity;
 
 #endif

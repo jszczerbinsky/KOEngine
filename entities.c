@@ -151,6 +151,8 @@ Entity *SpawnEntity(float x, float y, unsigned short width, unsigned short heigh
 	ent->onAnimationEnd = NULL;
 	ent->flip = SDL_FLIP_NONE;
 	ent->loopCall = NULL;
+	ent->extensionType = 0;
+	ent->extension = NULL;
 
 	ent->prev = NULL;
 	ent->next = NULL;
@@ -173,6 +175,10 @@ void KillEntity(Entity *entity)
 
 	if(entity->collider.vertices != NULL)
 		free(entity->collider.vertices);
+
+	if(entity->extension)
+		free(entity->extension);
+
 	free(entity);
 }
 
