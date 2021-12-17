@@ -21,6 +21,7 @@ void renderEntities(App *app);
 bool CheckAnyCollision(Entity *ent);
 
 void Move(Entity *ent, float x, float y);
+void MoveLocal(Entity *ent, float x, float y);
 void MoveTo(Entity *ent, Vector2D dest, float speed);
 void RotateTo(Entity *ent, Vector2D p);
 

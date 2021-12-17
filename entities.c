@@ -96,6 +96,18 @@ void Move(Entity *ent, float x, float y)
 	ent->localPosition.y += y;
 }
 
+void MoveLocal(Entity *ent, float x, float y)
+{
+	float rads = GetRotation(ent) * M_PI/180;
+
+	Move(ent,
+			cos(rads)*x+
+			sin(rads)*y,
+			sin(rads)*x-
+			cos(rads)*y
+	);
+}
+
 void MoveTo(Entity *ent, Vector2D dest, float speed)
 {
 	float xDistance = dest.x - GetPosition(ent).x;
