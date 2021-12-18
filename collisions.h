@@ -4,6 +4,9 @@
 #include <stdbool.h>
 #include "types.h"
 
+#define COLLIDER_MODE_NORMAL 0
+#define COLLIDER_MODE_EVENTS_ONLY 1
+
 Collider GenerateNullCollider();
 bool checkCollision(Entity *ent1, Entity *ent2);
 

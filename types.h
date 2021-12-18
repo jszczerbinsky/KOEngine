@@ -76,6 +76,8 @@ typedef struct Entity_{
   SDL_RendererFlip flip;
 
   Collider collider;  
+  int colliderMode;
+  void (*onCollision)(struct Entity_ *ent, struct Entity_ *ent2);
 
   void (*loopCall)(struct Entity_ *ent);
 

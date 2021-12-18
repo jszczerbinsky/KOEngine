@@ -78,6 +78,17 @@ bool checkCollision(Entity *ent1, Entity *ent2)
 		}
 	}
 
+	if(ent1->onCollision)
+		(*ent1->onCollision)(ent1, ent2);
+
+	if(ent2->onCollision)
+		(*ent2->onCollision)(ent2, ent1);
+
+
+	if(ent1->colliderMode == COLLIDER_MODE_EVENTS_ONLY &&
+		ent2->colliderMode == COLLIDER_MODE_EVENTS_ONLY)
+		return false;
+
 	return true;
 }
 

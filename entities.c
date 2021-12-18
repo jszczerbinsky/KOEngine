@@ -73,9 +73,13 @@ bool CheckAnyCollision(Entity *ent)
 {
 	if(ent->collider.verticesCount == 0) return false;
 
+	Entity *next;
+
 	for(unsigned char layer = 0; layer < LAYER_MAX; layer++)
-		for(Entity *e = entList[layer]; e; e = e->next)
+		for(Entity *e = entList[layer]; e; e = next)
 		{
+			next = e->next;
+
 			if(e == ent) continue;	
 
 			if(checkCollision(e, ent))
@@ -153,6 +157,8 @@ Entity *SpawnEntity(float x, float y, unsigned short width, unsigned short heigh
 	ent->animationCounter = 0;
 	ent->actualAnimation = NULL;
 	ent->onAnimationEnd = NULL;
+	ent->colliderMode = COLLIDER_MODE_NORMAL;
+	ent->onCollision = NULL;
 	ent->flip = SDL_FLIP_NONE;
 	ent->loopCall = NULL;
 	ent->extensionType = 0;
