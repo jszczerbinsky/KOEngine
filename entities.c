@@ -2,6 +2,7 @@
 
 #include "entities.h"
 #include "collisions.h"
+#include "debug.h"
 
 Entity *entList[LAYER_MAX];
 
@@ -228,6 +229,35 @@ void renderText(Vector2D pos, unsigned short height, UIParameters *ui, App *app)
 	SDL_FreeSurface(text_surf);
 }
 
+void renderCollider(App *app,Entity *e, Vector2D camPos)
+{
+	if(e->collider.verticesCount == 0) return;
+
+	SDL_SetRenderDrawColor(app->renderer, 255, 255, 255, 255);
+
+	SDL_Point vertices[e->collider.verticesCount];
+
+	for(int i = 0; i < e->collider.verticesCount; i++)
+	{
+		Vector2D p = e->collider.vertices[i];
+		Vector2D nonRotatedParentPos = getNonRotatedPosition(e);
+
+		p.x += nonRotatedParentPos.x;
+		p.y += nonRotatedParentPos.y;
+
+		inheritPosition(e, &p);
+		vertices[i].x = p.x - camPos.x + app->resX/2;
+		vertices[i].y = p.y - camPos.y + app->resY/2;
+	}
+
+	SDL_RenderDrawLines(app->renderer, vertices, e->collider.verticesCount);
+	SDL_RenderDrawLine(app->renderer, 
+			vertices[0].x, vertices[0].y,
+			vertices[e->collider.verticesCount-1].x,
+			vertices[e->collider.verticesCount-1].y
+	);
+}
+
 void renderEntities(App *app)
 {
 	Vector2D camPos = GetCameraPosition();
@@ -273,6 +303,9 @@ void renderEntities(App *app)
 			}
 			dest.w = e->width;
 			dest.h = e->height;
+
+			if((DebugFlags & DEBUG_FLAG_SHOW_COLLIDERS) == DEBUG_FLAG_SHOW_COLLIDERS)
+				renderCollider(app, e, camPos);
 
 			SDL_RenderCopyEx(app->renderer, e->actualTexture, NULL, &dest, GetRotation(e), NULL, e->flip);
 
