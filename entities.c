@@ -32,14 +32,18 @@ void inheritPosition(Entity *ent, Vector2D *posPtr)
 
 	Vector2D nonRotatedPosition = getNonRotatedPosition(ent);
 
+	Vector2D posPtrBackup;
+	posPtrBackup.x = posPtr->x;
+	posPtrBackup.y = posPtr->y;
+
 	posPtr->x = 
-		(cosTheta * (posPtr->x - nonRotatedPosition.x)) - 
-		(sinTheta * (posPtr->y - nonRotatedPosition.y)) +
+		(cosTheta * (posPtrBackup.x - nonRotatedPosition.x)) - 
+		(sinTheta * (posPtrBackup.y - nonRotatedPosition.y)) +
 		nonRotatedPosition.x;
 
 	posPtr->y = 
-		(sinTheta * (posPtr->x - nonRotatedPosition.x)) - 
-		(cosTheta * (posPtr->y - nonRotatedPosition.y)) +
+		(sinTheta * (posPtrBackup.x - nonRotatedPosition.x)) + 
+		(cosTheta * (posPtrBackup.y - nonRotatedPosition.y)) +
 		nonRotatedPosition.y;
 
 	if(ent->parent != NULL) inheritPosition(ent->parent, posPtr);
