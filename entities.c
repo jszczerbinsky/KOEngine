@@ -304,10 +304,19 @@ void renderEntities(App *app)
 			dest.w = e->width;
 			dest.h = e->height;
 
-			if((DebugFlags & DEBUG_FLAG_SHOW_COLLIDERS) == DEBUG_FLAG_SHOW_COLLIDERS)
-				renderCollider(app, e, camPos);
+			if(
+					(dest.x < app->resX) &&
+					(dest.x + dest.w > 0) &&
+					(dest.y < app->resY) &&
+					(dest.x + dest.w > 0)
+			)
+			{
 
-			SDL_RenderCopyEx(app->renderer, e->actualTexture, NULL, &dest, GetRotation(e), NULL, e->flip);
+				if((DebugFlags & DEBUG_FLAG_SHOW_COLLIDERS) == DEBUG_FLAG_SHOW_COLLIDERS)
+					renderCollider(app, e, camPos);
+
+				SDL_RenderCopyEx(app->renderer, e->actualTexture, NULL, &dest, GetRotation(e), NULL, e->flip);
+			}
 
 			if(e->ui) renderText(pos, e->height, e->ui, app);
 
