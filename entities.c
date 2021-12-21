@@ -268,15 +268,6 @@ void renderEntities(App *app)
 		{
 			Vector2D pos = GetPosition(e);
 
-			if(!e->ui &&
-					(
-						pos.x + e->width/2 < camPos.x - app->resX/2 ||
-						pos.x - e->width/2 > camPos.x + app->resX/2 ||
-						pos.y + e->height/2 < camPos.y - app->resY/2 ||
-						pos.y - e->height/2 > camPos.y + app->resY/2
-					)
-				) continue;
-
 			if(e->actualAnimation != NULL)
 			{
 				e->animationCounter += Delay * e->actualAnimation->speed;
@@ -308,7 +299,7 @@ void renderEntities(App *app)
 					(dest.x < app->resX) &&
 					(dest.x + dest.w > 0) &&
 					(dest.y < app->resY) &&
-					(dest.x + dest.w > 0)
+					(dest.x + dest.h > 0)
 			)
 			{
 
