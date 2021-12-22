@@ -33,8 +33,8 @@ Animation * LoadAnimation(float speed, int count, const char * path)
 
 	for(int i = 0; i < count; i++)
 	{
-		char * framePath = malloc(strlen(path) + 7);	
-		snprintf(framePath, strlen(path) + 7, "%s/%d.bmp", path, i+1);
+		char * framePath = malloc(strlen(path) + 10);	
+		snprintf(framePath, strlen(path) + 10, "%s/%d.bmp", path, i+1);
 
 		anim->textures[i] = LoadTexture(framePath);
 
