@@ -193,7 +193,7 @@ void KillEntity(Entity *entity)
 	free(entity);
 }
 
-void RotateTo(Entity *ent, Vector2D p)
+void SetRotationTo(Entity *ent, Vector2D p)
 {
 	float rot = (float)((180 / M_PI) * atan2(p.y - GetPosition(ent).y, p.x - GetPosition(ent).x));
 	if (rot < 0)
@@ -204,6 +204,22 @@ void RotateTo(Entity *ent, Vector2D p)
 
 	float increaseRot = GetRotation(ent) - ent->localRotation;
 	ent->localRotation = rot - increaseRot;
+}
+
+void RotateTo(Entity *ent, Vector2D p, float speed)
+{
+	float rot = GetRotation(ent);
+	SetRotationTo(ent, p);
+
+	float diff = GetRotation(ent) - rot;
+
+	while(diff < 0) diff = 360 + diff;
+	while(diff > 360) diff -= 360;
+
+	if(abs(diff) < speed) return;
+
+	if(diff < 180) ent->localRotation = rot+speed;
+	else ent->localRotation = rot-speed;
 }
 
 void renderText(Vector2D pos, unsigned short height, UIParameters *ui, App *app)

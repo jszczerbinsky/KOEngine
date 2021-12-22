@@ -23,7 +23,8 @@ bool CheckAnyCollision(Entity *ent);
 void Move(Entity *ent, float x, float y);
 void MoveLocal(Entity *ent, float x, float y);
 void MoveTo(Entity *ent, Vector2D dest, float speed);
-void RotateTo(Entity *ent, Vector2D p);
+void RotateTo(Entity *ent, Vector2D p, float speed);
+void SetRotationTo(Entity *ent, Vector2D p);
 
 Vector2D GetPosition(Entity *ent);
 float GetRotation(Entity *ent);
