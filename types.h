@@ -81,6 +81,8 @@ typedef struct Entity_{
 
   void (*loopCall)(struct Entity_ *ent);
 
+  void (*freeExtension)(void *extension);
+
   int extensionType;
   void *extension;
 } Entity;

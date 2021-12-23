@@ -164,6 +164,7 @@ Entity *SpawnEntity(float x, float y, unsigned short width, unsigned short heigh
 	ent->loopCall = NULL;
 	ent->extensionType = 0;
 	ent->extension = NULL;
+	ent->freeExtension = NULL;
 
 	ent->prev = NULL;
 	ent->next = NULL;
@@ -188,7 +189,11 @@ void KillEntity(Entity *entity)
 		free(entity->collider.vertices);
 
 	if(entity->extension)
+	{
+		if(entity->freeExtension)
+			(*entity->freeExtension)(entity->extension);
 		free(entity->extension);
+	}
 
 	free(entity);
 }
@@ -280,8 +285,13 @@ void renderEntities(App *app)
 
 	for(unsigned char layer = 0; layer < LAYER_MAX; layer++)
 	{
-		for(Entity *e = entList[layer]; e; e = e->next)
+		Entity *next = entList[layer];
+
+		while(next)
 		{
+			Entity *e = next;
+			next = e->next;
+
 			Vector2D pos = GetPosition(e);
 
 			if(e->actualAnimation != NULL)
@@ -329,8 +339,6 @@ void renderEntities(App *app)
 
 			if(e->loopCall != NULL)
 				(*e->loopCall)(e);	
-
-
 		}
 	}
 }

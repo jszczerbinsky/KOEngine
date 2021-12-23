@@ -93,7 +93,7 @@ void getInput()
 		switch (event.type)
 		{
 			case SDL_QUIT:
-				exit(0);
+				KOEngineExit();	
 				break;
 			case SDL_KEYDOWN:
 				setKeyDown(&event.key);
@@ -150,4 +150,5 @@ void KOEngineExit()
   SDL_Quit();
 	TTF_Quit();
 	freeEntities();
+	exit(0);
 }
