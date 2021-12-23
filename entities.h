@@ -5,7 +5,7 @@
 #include "camera.h"
 #include "KOEngine.h"
 
-#define LAYER_MAX 15
+#define LAYER_MAX 64
 
 void initEntities();
 
