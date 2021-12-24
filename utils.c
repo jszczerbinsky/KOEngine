@@ -4,6 +4,30 @@
 #include "KOEngine.h"
 #include "utils.h"
 
+Vector2D PositionScreenToWorld(Vector2D pos)
+{
+	pos.x += GetCameraPosition().x;
+	pos.y += GetCameraPosition().y;
+
+	App * app = getAppInfo();
+	pos.x -= app->resX/2;
+	pos.y -= app->resY/2;
+
+	return pos;
+}
+
+Vector2D PositionWorldToScreen(Vector2D pos)
+{
+	pos.x -= GetCameraPosition().x;
+	pos.y -= GetCameraPosition().y;
+
+	App * app = getAppInfo();
+	pos.x += app->resX/2;
+	pos.y += app->resY/2;
+
+	return pos;
+}
+
 Vector2D Lerp(Vector2D p1, Vector2D p2, float t)
 {
 	if(t < 0 ) t = 0;
