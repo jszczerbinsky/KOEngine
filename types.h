@@ -44,9 +44,13 @@ typedef enum
 
 typedef struct
 {
-  TTF_Font *font;
-  char *text;
   SDL_Color color;
+  TTF_Font *font;
+  unsigned char fontSize;
+  unsigned short linesOffset;
+  Texture *textTexture;
+  unsigned short textTextureWidth;
+  unsigned short textTextureHeight;
 } UIParameters;
 
 typedef struct Entity_{

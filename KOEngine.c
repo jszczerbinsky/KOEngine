@@ -145,10 +145,10 @@ void KOEngineInit(char *windowName, void (*onStartPtr)(), void (*loopCallPtr)())
 
 void KOEngineExit()
 {
+	freeEntities();
 	SDL_DestroyRenderer(app.renderer);
   SDL_DestroyWindow(app.window);
   SDL_Quit();
 	TTF_Quit();
-	freeEntities();
 	exit(0);
 }

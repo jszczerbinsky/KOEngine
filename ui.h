@@ -3,6 +3,17 @@
 
 #include "entities.h"
 
-Entity *CreateUIObject(int x, int y, unsigned short width, unsigned short height, SDL_Texture *texture, unsigned char layer, Font *font);
+Entity *CreateUIObject(
+    int x, int y, 
+    unsigned short width, unsigned short height, 
+    Texture *texture, 
+    unsigned short linesOffset, 
+    unsigned char layer, 
+    Font *font, 
+    unsigned char 
+    fontSize, 
+    SDL_Color color
+);
+void SetUIText(Entity *ent, char *text);
 
 #endif

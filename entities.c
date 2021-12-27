@@ -176,7 +176,12 @@ Entity *SpawnEntity(float x, float y, unsigned short width, unsigned short heigh
 
 void KillEntity(Entity *entity)
 {
-	if(entity->ui != NULL) free(entity->ui);
+	if(entity->ui != NULL)
+	{
+		if(entity->ui->textTexture)
+			SDL_DestroyTexture(entity->ui->textTexture);
+		free(entity->ui);
+	}
 
 	if(entity->prev != NULL)
 		entity->prev->next = entity->next;
@@ -227,29 +232,6 @@ void RotateTo(Entity *ent, Vector2D p, float speed)
 	else ent->localRotation = rot-speed;
 }
 
-void renderText(Vector2D pos, unsigned short height, UIParameters *ui, App *app)
-{
-	if(ui->text == NULL) return;
-
-	char * buff = calloc(strlen(ui->text) + 3, sizeof(char));
-	sprintf(buff, " %s ", ui->text);
-	SDL_Surface* text_surf = TTF_RenderText_Solid(ui->font, buff, ui->color);
-	free(buff);
-	Texture *tex = SDL_CreateTextureFromSurface(app->renderer, text_surf);
-
-	SDL_Rect dest;
-
-	dest.h = height;
-	dest.w = height * (text_surf->w/text_surf->h);
-	dest.x = pos.x - dest.w/2;
-	dest.y = pos.y - dest.h/2;
-
-	SDL_RenderCopy(app->renderer, tex, NULL, &dest);
-
-	SDL_DestroyTexture(tex);
-	SDL_FreeSurface(text_surf);
-}
-
 void renderCollider(App *app,Entity *e, Vector2D camPos)
 {
 	if(e->collider.verticesCount == 0) return;
@@ -277,6 +259,18 @@ void renderCollider(App *app,Entity *e, Vector2D camPos)
 			vertices[e->collider.verticesCount-1].x,
 			vertices[e->collider.verticesCount-1].y
 	);
+}
+
+void renderText(Vector2D pos, UIParameters *ui, App *app)
+{
+	SDL_Rect dest;
+
+	dest.h = ui->textTextureHeight;
+	dest.w = ui->textTextureWidth;
+	dest.x = pos.x - dest.w/2;
+	dest.y = pos.y - dest.h/2;
+
+	SDL_RenderCopy(app->renderer, ui->textTexture, NULL, &dest);
 }
 
 void renderEntities(App *app)
@@ -333,9 +327,9 @@ void renderEntities(App *app)
 					renderCollider(app, e, camPos);
 
 				SDL_RenderCopyEx(app->renderer, e->actualTexture, NULL, &dest, GetRotation(e), NULL, e->flip);
+				if(e->ui && e->ui->textTexture)
+					renderText(pos, e->ui, app);
 			}
-
-			if(e->ui) renderText(pos, e->height, e->ui, app);
 
 			if(e->loopCall != NULL)
 				(*e->loopCall)(e);	
