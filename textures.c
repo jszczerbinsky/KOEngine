@@ -1,18 +1,19 @@
 #include "textures.h"
+#include "log.h"
 
 SDL_Texture * LoadTexture(const char * path)
 {
 	SDL_Surface * surf = SDL_LoadBMP(path);
 
 	if(surf == NULL)
-		printf("%s\n", SDL_GetError());
+		Log("WARNING, can't load texture surface: %s", SDL_GetError());
 
 	App * app = getAppInfo();
 
 	SDL_Texture * texture = SDL_CreateTextureFromSurface(app->renderer, surf);
 
 	if(texture == NULL)
-		printf("%s\n", SDL_GetError());
+		Log("WARNING, can't initialize texture: %s", SDL_GetError());
 
 	SDL_FreeSurface(surf);
 

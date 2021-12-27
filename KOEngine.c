@@ -2,6 +2,7 @@
 #include <time.h>
 
 #include "KOEngine.h"
+#include "log.h"
 
 App app = { .resX = 800, .resY = 600};
 
@@ -42,7 +43,7 @@ void initApp(char * windowName)
 
   if (SDL_Init(SDL_INIT_VIDEO) < 0)
 	{
-		printf("Couldn't initialize SDL: %s\n", SDL_GetError());
+		Log("ERROR, can't initialize SDL: %s", SDL_GetError());
 		exit(1);
 	}
 
@@ -56,7 +57,7 @@ void initApp(char * windowName)
 
   if (!app.window)
 	{
-		printf("Failed to open window: %s\n", SDL_GetError());
+		Log("ERROR, failed to open window: %s", SDL_GetError());
 		exit(1);
 	}
 
@@ -66,7 +67,7 @@ void initApp(char * windowName)
 
 	if (!app.renderer)
 	{
-		printf("Failed to create renderer: %s\n", SDL_GetError());
+		Log("ERROR, failed to create renderer: %s", SDL_GetError());
 		exit(1);
 	}
 }
@@ -115,15 +116,22 @@ void getInput()
 
 void KOEngineInit(char *windowName, void (*onStartPtr)(), void (*loopCallPtr)())
 {
+	Log("Initializing");
 	srand((unsigned int)time(NULL));
-	initApp(windowName);
 
-	TTF_Init();
+	initApp(windowName);
+	
+	if(TTF_Init() == -1)
+	{
+		Log("ERROR, can't initialize SDL_ttf: %s", TTF_GetError());
+		exit(1);
+	}
 
 	unsigned int timer = SDL_GetTicks();
 
 	initEntities();
 
+	Log("Done, starting game");
 	(*onStartPtr)();
 
 	while (1)
@@ -145,6 +153,7 @@ void KOEngineInit(char *windowName, void (*onStartPtr)(), void (*loopCallPtr)())
 
 void KOEngineExit()
 {
+	Log("Closing");
 	freeEntities();
 	SDL_DestroyRenderer(app.renderer);
   SDL_DestroyWindow(app.window);
