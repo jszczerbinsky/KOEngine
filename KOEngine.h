@@ -12,6 +12,7 @@
 #include "mouse.h"
 #include "ui.h"
 #include "utils.h"
+#include "log.h"
 
 extern float Delay;
 
