@@ -7,11 +7,9 @@ Entity *CreateUIObject(
     int x, int y, 
     unsigned short width, unsigned short height, 
     Texture *texture, 
-    unsigned short linesOffset, 
+    unsigned short maxWidth, 
     unsigned char layer, 
     Font *font, 
-    unsigned char 
-    fontSize, 
     SDL_Color color
 );
 void SetUIText(Entity *ent, char *text);

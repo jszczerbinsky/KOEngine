@@ -61,7 +61,7 @@ void initApp(char * windowName)
 		exit(1);
 	}
 
-  SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "0");
+  SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "1");
 
 	app.renderer = SDL_CreateRenderer(app.window, -1, rendererFlags);
 

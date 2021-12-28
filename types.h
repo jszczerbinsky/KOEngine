@@ -46,8 +46,7 @@ typedef struct
 {
   SDL_Color color;
   TTF_Font *font;
-  unsigned char fontSize;
-  unsigned short linesOffset;
+  unsigned short maxWidth;
   Texture *textTexture;
   unsigned short textTextureWidth;
   unsigned short textTextureHeight;
