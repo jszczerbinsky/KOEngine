@@ -26,7 +26,7 @@ void SetUIText(Entity *ent, char *text)
 			ent->ui->font,
 			text,
 			ent->ui->color,
-			300
+			ent->ui->maxWidth	
 		);
 
 	App *app = getAppInfo();
