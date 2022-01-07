@@ -145,7 +145,7 @@ void KOEngineInit(char *windowName, void (*onStartPtr)(), void (*loopCallPtr)())
 		if(waitFor < 0) waitFor = 0;
 		SDL_Delay(waitFor);
 		(*loopCallPtr)();
-		renderEntities(&app);
+		updateEntities(&app);
 		frameShow();
 	}
 }

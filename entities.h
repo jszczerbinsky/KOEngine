@@ -16,7 +16,7 @@ void freeEntities();
 void addEntity(Entity *ent, unsigned char layer);
 void updateEntities();
 
-void renderEntities(App *app);
+void updateEntities(App *app);
 
 bool CheckAnyCollision(Entity *ent);
 
@@ -28,6 +28,9 @@ void SetRotationTo(Entity *ent, Vector2D p);
 
 Vector2D GetPosition(Entity *ent);
 float GetRotation(Entity *ent);
+
+Vector2D getNonRotatedPosition(Entity *ent);
+void inheritPosition(Entity *ent, Vector2D *posPtr);
 
 void Play(Entity *ent, Animation *anim, SDL_RendererFlip flip);
 void StopPlaying(Entity *ent);
