@@ -27,7 +27,7 @@ void SendToClient(NetworkClient *c, NetworkDatagram *datagram, ssize_t dataLengt
 NetworkClient *addClient(struct sockaddr *addr)
 {
   NetworkClient *c = calloc(1, sizeof(NetworkClient));
-  memcpy(&(c->address), addr, sizeof(struct sockaddr));
+  memcpy(&(c->address), addr, addrlen);
 
   c->next = clients;
 
@@ -62,32 +62,72 @@ void *hostTask(void *threadid)
     bytes = recvfrom(udpSocket, &buff, NETWORK_MAX_DATAGRAM, 0, (struct sockaddr *)&addr, &addrlen);
     if(exitThread) killSocket();
 
+    time_t now = time(NULL);
+
+    NetworkClient *c = clients;
+    NetworkClient *next = c;
+
     if(bytes > 0)
     {
-      if(*DATAGRAM_FLAGS(&buff) == NETWORK_FLAG_CONNECT)
+      NetworkClient *matchedClient = NULL;
+      while(next && !matchedClient)
       {
-        int accept = 1;
+        next = c->next;
 
-        if(hostOnConnectionAttempt)
-          (*hostOnConnectionAttempt)(&accept, (struct sockaddr *)&addr);
-
-        if(accept)
+        if(memcmp(&(c->address), (struct sockaddr*)&addr, addrlen))
         {
-          NetworkClient *c = addClient((struct sockaddr *)&addr); 
-
-          *DATAGRAM_FLAGS(&buff) = NETWORK_FLAG_ACCEPTED;
-          SendToClient(c, &buff, 0);
-
-          if(hostOnConnection)
-            (*hostOnConnection)(c);
-
-          Log("Client connected");
+          Log("Match");
+          matchedClient = c;
+          break;
         }
-        else
+      }
+
+      if(!matchedClient)
+      {
+        if(*DATAGRAM_FLAGS(&buff) == NETWORK_FLAG_CONNECT)
         {
-          *DATAGRAM_FLAGS(&buff) = NETWORK_FLAG_DECLINED;
-          sendDatagram(&buff, 0, (struct sockaddr *)&addr, addrlen);
+          int accept = 1;
+
+          if(hostOnConnectionAttempt)
+            (*hostOnConnectionAttempt)(&accept, (struct sockaddr *)&addr);
+
+          if(accept)
+          {
+            NetworkClient *newC = addClient((struct sockaddr *)&addr); 
+            newC->lastDatagram = now;
+
+            *DATAGRAM_FLAGS(&buff) = NETWORK_FLAG_ACCEPTED;
+            SendToClient(newC, &buff, 0);
+
+            if(hostOnConnection)
+              (*hostOnConnection)(newC);
+
+            Log("Client connected");
+          }
+          else
+          {
+            *DATAGRAM_FLAGS(&buff) = NETWORK_FLAG_DECLINED;
+            sendDatagram(&buff, 0, (struct sockaddr *)&addr, addrlen);
+          }
         }
+      }
+      else
+      {
+        matchedClient->lastDatagram = time(NULL); 
+      }
+    }
+    c = clients;
+    next = c;
+
+    while(next)
+    {
+      next = c->next;
+      if(now - c->lastDatagram > 5)
+      {
+        Log("Client timeouted");
+        *DATAGRAM_FLAGS(&buff) = NETWORK_FLAG_DISCONNECT;
+        SendToClient(c, &buff, 0);
+        removeClient(c);
       }
     }
   }

@@ -18,8 +18,8 @@
 #define NETWORK_STATUS_SERVER_NOT_RESPONDING -2
 #define NETWORK_STATUS_KICKED -3
 
-#define DATAGRAM_DATA(d) (d+1)
 #define DATAGRAM_FLAGS(d) (d[0])
+#define DATAGRAM_DATA(d) (d+1)
 
 #define SOCKET_WORKING() (udpSocket != -1)
 

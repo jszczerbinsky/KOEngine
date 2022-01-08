@@ -69,8 +69,11 @@ void *clientTask(void *threadid)
     if(bytes > 0)
     {
       timeoutSeconds = 0;
+
       if((*DATAGRAM_FLAGS(&buff)) == NETWORK_FLAG_DISCONNECT)
       {
+        Log("Kicked by server");
+
         if(clientOnDisconnection)
           (*clientOnDisconnection)(NETWORK_STATUS_KICKED);
         killSocket();
@@ -89,6 +92,8 @@ void *clientTask(void *threadid)
       timeoutSeconds++;
       if(timeoutSeconds > 20)
       {
+        Log("Server connection timeout");
+
         if(clientOnDisconnection)
           (*clientOnDisconnection)(NETWORK_STATUS_SERVER_NOT_RESPONDING);
         killSocket();

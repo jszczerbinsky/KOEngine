@@ -96,7 +96,7 @@ typedef struct Entity_{
 typedef struct NetworkClient_
 {
   struct sockaddr address;
-  float timeoutDelay;
+  time_t lastDatagram;
 
   struct NetworkClient_ *next;
   struct NetworkClient_ *prev;
