@@ -5,6 +5,9 @@
 #include <SDL2/SDL_ttf.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include <sys/socket.h>
+
+#define NETWORK_MAX_DATAGRAM 1024
 
 typedef SDL_Texture Texture;
 typedef SDL_Color Color;
@@ -89,5 +92,18 @@ typedef struct Entity_{
   int extensionType;
   void *extension;
 } Entity;
+
+typedef struct NetworkClient_
+{
+  struct sockaddr address;
+  float timeoutDelay;
+
+  struct NetworkClient_ *next;
+  struct NetworkClient_ *prev;
+} NetworkClient;
+
+typedef unsigned char NetworkFlags;
+
+typedef unsigned char NetworkDatagram[NETWORK_MAX_DATAGRAM];
 
 #endif

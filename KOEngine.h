@@ -13,6 +13,7 @@
 #include "ui.h"
 #include "utils.h"
 #include "log.h"
+#include "networking.h"
 
 extern float Delay;
 
