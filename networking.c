@@ -17,6 +17,7 @@ int udpSocket = -1;
 socklen_t addrlen;
 
 pthread_t sockThread;
+int exitThread = 0;
 
 void sendDatagram(NetworkDatagram *datagram, ssize_t dataLength, struct sockaddr *addr, socklen_t addrlen)
 {
@@ -25,8 +26,13 @@ void sendDatagram(NetworkDatagram *datagram, ssize_t dataLength, struct sockaddr
 
 void killSocket()
 {
-  pthread_kill(sockThread, SIGQUIT);
-  shutdown(udpSocket, SHUT_RDWR);
-  close(udpSocket);
+  if(SOCKET_WORKING())
+  {
+    shutdown(udpSocket, SHUT_RDWR);
+    close(udpSocket);
+  }
   udpSocket = -1;
+
+  exitThread = 0;
+  pthread_exit(NULL);
 }

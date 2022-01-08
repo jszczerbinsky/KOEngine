@@ -21,19 +21,33 @@
 #define DATAGRAM_DATA(d) (d+1)
 #define DATAGRAM_FLAGS(d) (d[0])
 
-#define SOCKET_WORKING() (Socket != -1)
+#define SOCKET_WORKING() (udpSocket != -1)
 
 extern int NetworkRole;
 extern int udpSocket;
+
 extern pthread_t sockThread;
+extern int exitThread;
+
 extern socklen_t addrlen;
 
 void sendDatagram(NetworkDatagram *datagram, ssize_t dataLength, struct sockaddr *addr, socklen_t addrlen);
 void killSocket();
 
-void HostServer(char *address, int port);
+void HostServer(
+  char *address, int port, 
+  void (*onConnectionAttempt)(int *accept, struct sockaddr *addr),
+  void (*onConnection)(NetworkClient *c),
+  void (*onDisconnection)(NetworkClient *c),
+  void (*onData)(unsigned char *data, ssize_t size)
+);
 void CloseServer();
 
-void Connect(char *address, int port);
+void Connect(
+  char *address, int port,
+  void (*onConnectionPtr)(int status),
+  void (*onDisconnectionPtr)(int status),
+  void (*onDataPtr)(unsigned char * data, ssize_t size)
+);
 
 #endif

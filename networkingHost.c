@@ -14,6 +14,11 @@
 
 NetworkClient *clients = NULL;
 
+void (*hostOnConnectionAttempt)(int *accept, struct sockaddr *addr) = NULL;
+void (*hostOnConnection)(NetworkClient *c) = NULL;
+void (*hostOnDisconnection)(NetworkClient *c) = NULL;
+void (*hostOnData)(unsigned char *data, ssize_t size) = NULL;
+
 void SendToClient(NetworkClient *c, NetworkDatagram *datagram, ssize_t dataLength)
 {
   sendDatagram(datagram, dataLength, (struct sockaddr*)&(c->address), addrlen);
@@ -55,23 +60,52 @@ void *hostTask(void *threadid)
     struct sockaddr_storage addr;
 
     bytes = recvfrom(udpSocket, &buff, NETWORK_MAX_DATAGRAM, 0, (struct sockaddr *)&addr, &addrlen);
+    if(exitThread) killSocket();
 
     if(bytes > 0)
     {
       if(*DATAGRAM_FLAGS(&buff) == NETWORK_FLAG_CONNECT)
       {
-        NetworkClient *c = addClient((struct sockaddr *)&addr); 
+        int accept = 1;
 
-        *DATAGRAM_FLAGS(&buff) = NETWORK_FLAG_ACCEPTED;
-        SendToClient(c, &buff, 0);
-        Log("Client connected");
+        if(hostOnConnectionAttempt)
+          (*hostOnConnectionAttempt)(&accept, (struct sockaddr *)&addr);
+
+        if(accept)
+        {
+          NetworkClient *c = addClient((struct sockaddr *)&addr); 
+
+          *DATAGRAM_FLAGS(&buff) = NETWORK_FLAG_ACCEPTED;
+          SendToClient(c, &buff, 0);
+
+          if(hostOnConnection)
+            (*hostOnConnection)(c);
+
+          Log("Client connected");
+        }
+        else
+        {
+          *DATAGRAM_FLAGS(&buff) = NETWORK_FLAG_DECLINED;
+          sendDatagram(&buff, 0, (struct sockaddr *)&addr, addrlen);
+        }
       }
     }
   }
 }
 
-void HostServer(char *address, int port)
+void HostServer(
+  char *address, int port, 
+  void (*onConnectionAttemptPtr)(int *accept, struct sockaddr *addr),
+  void (*onConnectionPtr)(NetworkClient *c),
+  void (*onDisconnectionPtr)(NetworkClient *c),
+  void (*onDataPtr)(unsigned char *data, ssize_t size)
+)
 {
+  hostOnConnectionAttempt = onConnectionAttemptPtr;
+  hostOnConnection = onConnectionPtr;
+  hostOnDisconnection= onDisconnectionPtr;
+  hostOnData = onDataPtr;
+
   NetworkRole = ROLE_HOST;
 
 	udpSocket = socket(PF_INET, SOCK_DGRAM, 0);
@@ -109,7 +143,8 @@ void HostServer(char *address, int port)
 
 void CloseServer()
 {
-  killSocket();
+  exitThread = 1;
+  pthread_join(sockThread, NULL);
   while(clients)
     removeClient(clients);
 }
