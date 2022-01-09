@@ -17,10 +17,16 @@
 
 extern float Delay;
 
-App * getAppInfo();
+void KOEngineInit(
+  char *windowName, 
+  void (*onStartPtr)(), 
+  void (*loopCallPtr)()
+);
+void KOEngineExit();
+
 void SetResolution(unsigned short width, unsigned short height);
 void SetBackground(uint8_t r, uint8_t g, uint8_t b);
-void KOEngineInit(char *windowName, void (*onStartPtr)(), void (*loopCallPtr)());
-void KOEngineExit();
+
+App * getAppInfo();
 
 #endif

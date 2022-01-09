@@ -9,32 +9,41 @@
 
 #define NO_NETWORK_ID 0
 
-void initEntities();
-
-Entity *SpawnEntity(float x, float y, unsigned short width, unsigned short height, Collider collider, SDL_Texture *texture, unsigned char layer);
+Entity *SpawnEntity(
+  float x,
+  float y, 
+  unsigned short width, 
+  unsigned short height, 
+  Collider collider, 
+  SDL_Texture *texture, 
+  unsigned char layer
+);
 void KillEntity(Entity *entity);
-void freeEntities();
 
-void addEntity(Entity *ent, unsigned char layer);
-void updateEntities();
+Vector2D GetPosition(Entity *ent);
+float    GetRotation(Entity *ent);
 
-void updateEntities(App *app);
+void Move         (Entity *ent, float x, float y);
+void MoveLocal    (Entity *ent, float x, float y);
+void MoveTo       (Entity *ent, Vector2D dest, float speed);
+void RotateTo     (Entity *ent, Vector2D p, float speed);
+void SetRotationTo(Entity *ent, Vector2D p);
+
+void Play       (Entity *ent, Animation *anim, SDL_RendererFlip flip);
+void StopPlaying(Entity *ent);
 
 bool CheckAnyCollision(Entity *ent);
 
-void Move(Entity *ent, float x, float y);
-void MoveLocal(Entity *ent, float x, float y);
-void MoveTo(Entity *ent, Vector2D dest, float speed);
-void RotateTo(Entity *ent, Vector2D p, float speed);
-void SetRotationTo(Entity *ent, Vector2D p);
+void initEntities();
+void freeEntities();
 
-Vector2D GetPosition(Entity *ent);
-float GetRotation(Entity *ent);
+void addEntity(Entity *ent, unsigned char layer);
+
+void updateEntities();
+void updateEntities(App *app);
 
 Vector2D getNonRotatedPosition(Entity *ent);
 void inheritPosition(Entity *ent, Vector2D *posPtr);
 
-void Play(Entity *ent, Animation *anim, SDL_RendererFlip flip);
-void StopPlaying(Entity *ent);
 
 #endif

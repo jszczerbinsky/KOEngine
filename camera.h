@@ -4,7 +4,8 @@
 #include "types.h"
 
 void SetCameraPosition(float x, float y);
-void MoveCamera(float x, float y);
+void MoveCamera       (float x, float y);
+
 Vector2D GetCameraPosition();
 
 #endif

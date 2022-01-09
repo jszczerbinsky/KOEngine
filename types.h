@@ -10,8 +10,8 @@
 #define NETWORK_MAX_DATAGRAM 1024
 
 typedef SDL_Texture Texture;
-typedef SDL_Color Color;
-typedef TTF_Font Font;
+typedef SDL_Color   Color;
+typedef TTF_Font    Font;
 
 typedef struct {
   float x;
@@ -38,11 +38,11 @@ typedef struct {
 
 typedef enum
 {
-  MouseLeft = SDL_BUTTON_LEFT,
+  MouseLeft   = SDL_BUTTON_LEFT,
   MouseMiddle = SDL_BUTTON_MIDDLE,
-  MouseRight = SDL_BUTTON_RIGHT,
-  MouseX1 = SDL_BUTTON_X1,
-  MouseX2 = SDL_BUTTON_X2
+  MouseRight  = SDL_BUTTON_RIGHT,
+  MouseX1     = SDL_BUTTON_X1,
+  MouseX2     = SDL_BUTTON_X2
 } MouseButton;
 
 typedef struct

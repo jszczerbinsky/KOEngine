@@ -3,8 +3,9 @@
 
 #include "types.h"
 
-Animation * CreateAnimation(float speed, int count, ...);
-Animation * LoadAnimation(float speed, int count, const char * path);
+Animation *CreateAnimation(float speed, int count, ...);
+Animation *LoadAnimation  (float speed, int count, const char * path);
+
 void FreeAnimation(Animation *anim);
 
 #endif
