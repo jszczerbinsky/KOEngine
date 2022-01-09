@@ -55,7 +55,11 @@ typedef struct
   unsigned short textTextureHeight;
 } UIParameters;
 
+typedef unsigned short NetworkID;
+
 typedef struct Entity_{
+  NetworkID networkID;
+
   unsigned char layer;
 
   UIParameters *ui;

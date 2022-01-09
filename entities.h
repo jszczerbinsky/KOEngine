@@ -7,6 +7,8 @@
 
 #define LAYER_MAX 64
 
+#define NO_NETWORK_ID 0
+
 void initEntities();
 
 Entity *SpawnEntity(float x, float y, unsigned short width, unsigned short height, Collider collider, SDL_Texture *texture, unsigned char layer);

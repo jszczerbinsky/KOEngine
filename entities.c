@@ -145,6 +145,7 @@ void addEntity(Entity *ent, unsigned char layer)
 Entity *SpawnEntity(float x, float y, unsigned short width, unsigned short height, Collider collider, SDL_Texture *texture, unsigned char layer)
 {
 	Entity *ent = malloc(sizeof(Entity));
+	ent->networkID = NO_NETWORK_ID;
 	ent->layer = layer;
 	ent->ui = NULL;
 	ent->parent = NULL;
