@@ -17,7 +17,7 @@ NetworkClient *clients = NULL;
 void (*hostOnConnectionAttempt)(int *accept, struct sockaddr *addr) = NULL;
 void (*hostOnConnection)(NetworkClient *c) = NULL;
 void (*hostOnDisconnection)(NetworkClient *c) = NULL;
-void (*hostOnData)(unsigned char *data, ssize_t size) = NULL;
+void (*hostOnData)(NetworkClient *c, unsigned char *data, ssize_t size) = NULL;
 
 void SendToClient(NetworkClient *c, NetworkDatagram *datagram, ssize_t dataLength)
 {
@@ -74,9 +74,8 @@ void *hostTask(void *threadid)
       {
         next = c->next;
 
-        if(memcmp(&(c->address), (struct sockaddr*)&addr, addrlen))
+        if(memcmp(&(c->address), (struct sockaddr*)&addr, addrlen) == 0)
         {
-          Log("Match");
           matchedClient = c;
           break;
         }
@@ -114,6 +113,7 @@ void *hostTask(void *threadid)
       else
       {
         matchedClient->lastDatagram = time(NULL); 
+        (*hostOnData)(matchedClient, DATAGRAM_DATA(&buff), bytes-1);
       }
     }
     c = clients;
@@ -138,7 +138,7 @@ void HostServer(
   void (*onConnectionAttemptPtr)(int *accept, struct sockaddr *addr),
   void (*onConnectionPtr)(NetworkClient *c),
   void (*onDisconnectionPtr)(NetworkClient *c),
-  void (*onDataPtr)(unsigned char *data, ssize_t size)
+  void (*onDataPtr)(NetworkClient *c, unsigned char *data, ssize_t size)
 )
 {
   hostOnConnectionAttempt = onConnectionAttemptPtr;

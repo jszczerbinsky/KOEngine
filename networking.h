@@ -18,12 +18,13 @@
 #define NETWORK_STATUS_SERVER_NOT_RESPONDING -2
 #define NETWORK_STATUS_KICKED                -3
 
-#define DATAGRAM_FLAGS(d) (d[0])
-#define DATAGRAM_DATA (d) (d+1)
+#define DATAGRAM_FLAGS(d) (((unsigned char *)d))
+#define DATAGRAM_DATA(d) (((unsigned char *)d)+1)
 
 #define SOCKET_WORKING() (udpSocket != -1)
 
 extern int NetworkRole;
+extern NetworkClient *clients;
 extern int udpSocket;
 
 extern pthread_t sockThread;
@@ -39,8 +40,9 @@ void HostServer(
   void (*onConnectionAttempt)(int *accept, struct sockaddr *addr),
   void (*onConnection)(NetworkClient *c),
   void (*onDisconnection)(NetworkClient *c),
-  void (*onData)(unsigned char *data, ssize_t size)
+  void (*onData)(NetworkClient *c, unsigned char *data, ssize_t size)
 );
+void SendToClient(NetworkClient *c, NetworkDatagram *datagram, ssize_t dataLength);
 void CloseServer();
 
 void Connect(
@@ -49,6 +51,7 @@ void Connect(
   void (*onDisconnectionPtr)(int status),
   void (*onDataPtr)(unsigned char * data, ssize_t size)
 );
+void SendToServer(NetworkDatagram *datagram, ssize_t dataLength);
 void Disconnect();
 
 #endif
