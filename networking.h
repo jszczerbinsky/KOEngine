@@ -49,5 +49,6 @@ void Connect(
   void (*onDisconnectionPtr)(int status),
   void (*onDataPtr)(unsigned char * data, ssize_t size)
 );
+void Disconnect();
 
 #endif

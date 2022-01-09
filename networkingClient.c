@@ -64,7 +64,11 @@ void *clientTask(void *threadid)
   while(1)
   {
     bytes = recvfrom(udpSocket, &buff, NETWORK_MAX_DATAGRAM, 0, NULL, NULL);
-    if(exitThread) killSocket();
+    if(exitThread)
+    {
+      (*clientOnDisconnection)(NETWORK_STATUS_SUCCESS);
+      killSocket();
+    }
 
     if(bytes > 0)
     {
@@ -135,4 +139,10 @@ void Connect(
 
   int i = 1;
   pthread_create(&sockThread, NULL, clientTask, (void*)&i);
+}
+
+void Disconnect()
+{
+  exitThread = 1;
+  pthread_join(sockThread, NULL);
 }
