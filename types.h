@@ -102,6 +102,8 @@ typedef struct NetworkClient_
   struct sockaddr address;
   time_t lastDatagram;
 
+  void *extension;
+
   struct NetworkClient_ *next;
   struct NetworkClient_ *prev;
 } NetworkClient;
