@@ -149,10 +149,11 @@ void KOEngineInit(char *windowName, void (*onStartPtr)(), void (*loopCallPtr)())
 
 		(*loopCallPtr)();
 		updateEntities(&app);
-		if(NetworkRole == ROLE_HOST && SOCKET_WORKING())
-			updateClients();
 
 		UNLOCK_ENTITIES();	
+
+		if(NetworkRole == ROLE_HOST && SOCKET_WORKING())
+			updateClients();
 
 		frameShow();
 	}
