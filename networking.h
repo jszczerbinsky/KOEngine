@@ -40,6 +40,7 @@ extern socklen_t addrlen;
 void sendDatagram(NetworkDatagram *datagram, ssize_t dataLength, struct sockaddr *addr, socklen_t addrlen);
 void killSocket();
 
+void updateClients();
 void HostServer(NetworkHostSettings *settings);
 void SendToClient(NetworkClient *c, NetworkDatagram *datagram, ssize_t dataLength);
 void CloseServer();

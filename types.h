@@ -121,6 +121,7 @@ typedef struct
   void (*onConnection)(NetworkClient *c);
   void (*onDisconnection)(NetworkClient *c);
   void (*onData)(NetworkClient *c, unsigned char *data, ssize_t size);
+  void (*clientLoopCall)(NetworkClient *c);
   float clientTimeoutTime; 
 } NetworkHostSettings;
 

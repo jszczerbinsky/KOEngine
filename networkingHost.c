@@ -16,6 +16,8 @@
 
 NetworkClient *clients = NULL;
 
+pthread_mutex_t clientsLock;
+
 void SendToClient(NetworkClient *c, NetworkDatagram *datagram, ssize_t dataLength)
 {
   sendDatagram(datagram, dataLength, (struct sockaddr*)&(c->address), addrlen);
@@ -66,6 +68,7 @@ void *hostTask(void *threadid)
 
     if(bytes > 0)
     {
+      pthread_mutex_lock(&clientsLock);
       NetworkClient *matchedClient = NULL;
       while(next && !matchedClient)
       {
@@ -123,6 +126,7 @@ void *hostTask(void *threadid)
           removeClient(matchedClient);
         }
       }
+      pthread_mutex_unlock(&clientsLock);
     }
     c = clients;
     next = c;
@@ -152,9 +156,12 @@ void HostServer(NetworkHostSettings *settings)
 
   NetworkRole = ROLE_HOST;
 
+  pthread_mutex_init(&clientsLock, NULL);
+
 	udpSocket = socket(PF_INET, SOCK_DGRAM, 0);
   if(udpSocket == -1)
   {
+    pthread_mutex_destroy(&clientsLock);
     Log("ERROR, can't create socket");
     return;
   }
@@ -178,11 +185,28 @@ void HostServer(NetworkHostSettings *settings)
  	if(bind(udpSocket, (struct sockaddr *)&hostAddr, sizeof(hostAddr)) == -1)
   {
     Log("ERROR, can't host a server on port %d", HOST_SETTINGS->port);
+    pthread_mutex_destroy(&clientsLock);
     return;
   }
 
   int i = 1;
   pthread_create(&sockThread, NULL, hostTask, (void*)&i);
+}
+
+void updateClients()
+{
+  if(!HOST_SETTINGS->clientLoopCall) return;
+  
+  pthread_mutex_lock(&clientsLock);
+
+  NetworkClient *c = clients;
+  while(c)
+  {
+    (*HOST_SETTINGS->clientLoopCall)(c);
+    c = c->next;
+  }
+
+  pthread_mutex_unlock(&clientsLock);
 }
 
 void CloseServer()
@@ -191,4 +215,5 @@ void CloseServer()
   pthread_join(sockThread, NULL);
   while(clients)
     removeClient(clients);
+  pthread_mutex_destroy(&clientsLock);
 }
