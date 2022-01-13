@@ -12,12 +12,9 @@
 #include "types.h"
 #include "log.h"
 
-NetworkClient *clients = NULL;
+#define HOST_SETTINGS ((NetworkHostSettings*)networkSettingsPtr)
 
-void (*hostOnConnectionAttempt)(int *accept, struct sockaddr *addr) = NULL;
-void (*hostOnConnection)(NetworkClient *c) = NULL;
-void (*hostOnDisconnection)(NetworkClient *c) = NULL;
-void (*hostOnData)(NetworkClient *c, unsigned char *data, ssize_t size) = NULL;
+NetworkClient *clients = NULL;
 
 void SendToClient(NetworkClient *c, NetworkDatagram *datagram, ssize_t dataLength)
 {
@@ -79,6 +76,8 @@ void *hostTask(void *threadid)
           matchedClient = c;
           break;
         }
+
+        c = next;
       }
 
       if(!matchedClient)
@@ -87,8 +86,8 @@ void *hostTask(void *threadid)
         {
           int accept = 1;
 
-          if(hostOnConnectionAttempt)
-            (*hostOnConnectionAttempt)(&accept, (struct sockaddr *)&addr);
+          if(HOST_SETTINGS->onConnectionAttempt)
+            (*HOST_SETTINGS->onConnectionAttempt)(&accept, (struct sockaddr *)&addr);
 
           if(accept)
           {
@@ -98,8 +97,8 @@ void *hostTask(void *threadid)
             *DATAGRAM_FLAGS(&buff) = NETWORK_FLAG_ACCEPTED;
             SendToClient(newC, &buff, 0);
 
-            if(hostOnConnection)
-              (*hostOnConnection)(newC);
+            if(HOST_SETTINGS->onConnection)
+              (*HOST_SETTINGS->onConnection)(newC);
 
             Log("Client connected");
           }
@@ -109,11 +108,20 @@ void *hostTask(void *threadid)
             sendDatagram(&buff, 0, (struct sockaddr *)&addr, addrlen);
           }
         }
-      }
+              }
       else
       {
         matchedClient->lastDatagram = time(NULL); 
-        (*hostOnData)(matchedClient, DATAGRAM_DATA(&buff), bytes-1);
+
+        if(HOST_SETTINGS->onData)
+          (*HOST_SETTINGS->onData)(matchedClient, DATAGRAM_DATA(&buff), bytes-1);
+
+        if(*DATAGRAM_FLAGS(&buff) == NETWORK_FLAG_DISCONNECT)
+        {
+          if(HOST_SETTINGS->onDisconnection)
+              (*HOST_SETTINGS->onDisconnection)(matchedClient);
+          removeClient(matchedClient);
+        }
       }
     }
     c = clients;
@@ -122,29 +130,25 @@ void *hostTask(void *threadid)
     while(next)
     {
       next = c->next;
-      if(now - c->lastDatagram > 5)
+      if(HOST_SETTINGS->clientTimeoutTime != TIMEOUT_DISABLE && now - c->lastDatagram > HOST_SETTINGS->clientTimeoutTime)
       {
-        Log("Client timeouted");
+        Log("Client timed out");
+
+        if(HOST_SETTINGS->onDisconnection)
+          (*HOST_SETTINGS->onDisconnection)(c);
+
         *DATAGRAM_FLAGS(&buff) = NETWORK_FLAG_DISCONNECT;
         SendToClient(c, &buff, 0);
         removeClient(c);
       }
+      c = next;
     }
   }
 }
 
-void HostServer(
-  char *address, int port, 
-  void (*onConnectionAttemptPtr)(int *accept, struct sockaddr *addr),
-  void (*onConnectionPtr)(NetworkClient *c),
-  void (*onDisconnectionPtr)(NetworkClient *c),
-  void (*onDataPtr)(NetworkClient *c, unsigned char *data, ssize_t size)
-)
+void HostServer(NetworkHostSettings *settings)
 {
-  hostOnConnectionAttempt = onConnectionAttemptPtr;
-  hostOnConnection = onConnectionPtr;
-  hostOnDisconnection= onDisconnectionPtr;
-  hostOnData = onDataPtr;
+  networkSettingsPtr = settings;
 
   NetworkRole = ROLE_HOST;
 
@@ -158,8 +162,8 @@ void HostServer(
 	struct sockaddr_in hostAddr;
 
 	hostAddr.sin_family = AF_INET;
-  hostAddr.sin_port = htons(port);
-  hostAddr.sin_addr.s_addr = inet_addr(address);
+  hostAddr.sin_port = htons(HOST_SETTINGS->port);
+  hostAddr.sin_addr.s_addr = inet_addr(HOST_SETTINGS->address);
   memset(hostAddr.sin_zero, '\0', sizeof(hostAddr.sin_zero));
 
   addrlen = sizeof(hostAddr);
@@ -173,7 +177,7 @@ void HostServer(
 
  	if(bind(udpSocket, (struct sockaddr *)&hostAddr, sizeof(hostAddr)) == -1)
   {
-    Log("ERROR, can't host a server on port %d", port);
+    Log("ERROR, can't host a server on port %d", HOST_SETTINGS->port);
     return;
   }
 

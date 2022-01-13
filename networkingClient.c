@@ -3,11 +3,9 @@
 #include "networking.h"
 #include "log.h"
 
-struct sockaddr_in serverAddr;
+#define CLIENT_SETTINGS ((NetworkClientSettings*)networkSettingsPtr)
 
-void (*clientOnConnection)(int status) = NULL;
-void (*clientOnDisconnection)(int status) = NULL;
-void (*clientOnData)(unsigned char * data, ssize_t size) = NULL;
+struct sockaddr_in serverAddr;
 
 void SendToServer(NetworkDatagram *datagram, ssize_t dataLength)
 {
@@ -54,8 +52,8 @@ void *clientTask(void *threadid)
       break;
   }
 
-  if(clientOnConnection)
-    (*clientOnConnection)(status);
+  if(CLIENT_SETTINGS->onConnection)
+    (*CLIENT_SETTINGS->onConnection)(status);
 
   if(status != NETWORK_STATUS_SUCCESS) killSocket();
   (*DATAGRAM_FLAGS(&buff)) = 0;
@@ -66,7 +64,8 @@ void *clientTask(void *threadid)
     bytes = recvfrom(udpSocket, &buff, NETWORK_MAX_DATAGRAM, 0, NULL, NULL);
     if(exitThread)
     {
-      (*clientOnDisconnection)(NETWORK_STATUS_SUCCESS);
+      if(CLIENT_SETTINGS->onDisconnection)
+        (*CLIENT_SETTINGS->onDisconnection)(NETWORK_STATUS_SUCCESS);
       killSocket();
     }
 
@@ -78,43 +77,35 @@ void *clientTask(void *threadid)
       {
         Log("Kicked by server");
 
-        if(clientOnDisconnection)
-          (*clientOnDisconnection)(NETWORK_STATUS_KICKED);
+        if(CLIENT_SETTINGS->onDisconnection)
+          (*CLIENT_SETTINGS->onDisconnection)(NETWORK_STATUS_KICKED);
         killSocket();
       }
 
       ssize_t dataSize = bytes-1;
       if(dataSize > 0)
       {
-        if(clientOnData)
-          (*clientOnData)(DATAGRAM_DATA(buff), dataSize);
-        Log("%s", DATAGRAM_DATA(buff));
+        if(CLIENT_SETTINGS->onData)
+          (*CLIENT_SETTINGS->onData)(DATAGRAM_DATA(buff), dataSize);
       }
     }
     else
     {
       timeoutSeconds++;
-      if(timeoutSeconds > 20)
+      if(CLIENT_SETTINGS->timeoutTime != TIMEOUT_DISABLE && timeoutSeconds > CLIENT_SETTINGS->timeoutTime)
       {
         Log("Server connection timeout");
 
-        if(clientOnDisconnection)
-          (*clientOnDisconnection)(NETWORK_STATUS_SERVER_NOT_RESPONDING);
+        if(CLIENT_SETTINGS->onDisconnection)
+          (*CLIENT_SETTINGS->onDisconnection)(NETWORK_STATUS_SERVER_NOT_RESPONDING);
         killSocket();
       }
     }
   }
 }
-void Connect(
-  char *address, int port,
-  void (*onConnectionPtr)(int status),
-  void (*onDisconnectionPtr)(int status),
-  void (*onDataPtr)(unsigned char * data, ssize_t size)
-)
+void Connect(NetworkClientSettings *settings)
 {
-  clientOnConnection = onConnectionPtr;
-  clientOnDisconnection = onDisconnectionPtr;
-  clientOnData = onDataPtr;
+  networkSettingsPtr = settings;
 
   NetworkRole = ROLE_CLIENT;
 
@@ -126,8 +117,8 @@ void Connect(
   }
 
 	serverAddr.sin_family = AF_INET;
-  serverAddr.sin_port = htons(port);
-  serverAddr.sin_addr.s_addr = inet_addr(address);
+  serverAddr.sin_port = htons(CLIENT_SETTINGS->serverPort);
+  serverAddr.sin_addr.s_addr = inet_addr(CLIENT_SETTINGS->serverAddress);
   memset(serverAddr.sin_zero, '\0', sizeof(serverAddr.sin_zero));
 
   addrlen = sizeof(serverAddr);
@@ -143,6 +134,10 @@ void Connect(
 
 void Disconnect()
 {
+  NetworkDatagram buff;
+  (*DATAGRAM_FLAGS(&buff)) = NETWORK_FLAG_DISCONNECT;
+  SendToServer(&buff, 0);
+
   exitThread = 1;
   pthread_join(sockThread, NULL);
 }

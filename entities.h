@@ -1,6 +1,7 @@
 #ifndef KO_ENTITIES_H
 #define KO_ENTITIES_H
 
+#include <pthread.h>
 #include "types.h"
 #include "camera.h"
 #include "KOEngine.h"
@@ -8,6 +9,11 @@
 #define LAYER_MAX 64
 
 #define NO_NETWORK_ID 0
+
+#define LOCK_ENTITIES()   pthread_mutex_lock(&entitiesLockHook)
+#define UNLOCK_ENTITIES() pthread_mutex_unlock(&entitiesLockHook)
+
+extern pthread_mutex_t entitiesLockHook;
 
 Entity *SpawnEntity(
   float x,
@@ -34,6 +40,8 @@ void StopPlaying(Entity *ent);
 
 bool CheckAnyCollision(Entity *ent);
 
+NetworkID AssignNetworkID(Entity *ent);
+
 void initEntities();
 void freeEntities();
 
@@ -44,6 +52,5 @@ void updateEntities(App *app);
 
 Vector2D getNonRotatedPosition(Entity *ent);
 void inheritPosition(Entity *ent, Vector2D *posPtr);
-
 
 #endif

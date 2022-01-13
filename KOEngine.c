@@ -144,8 +144,14 @@ void KOEngineInit(char *windowName, void (*onStartPtr)(), void (*loopCallPtr)())
 		int waitFor = 8-ticks;
 		if(waitFor < 0) waitFor = 0;
 		SDL_Delay(waitFor);
+
+		LOCK_ENTITIES();
+
 		(*loopCallPtr)();
 		updateEntities(&app);
+
+		UNLOCK_ENTITIES();	
+
 		frameShow();
 	}
 }
@@ -155,6 +161,7 @@ void KOEngineExit()
 {
 	Log("Closing");
 	freeEntities();
+	pthread_mutex_destroy(&entitiesLockHook);
 	SDL_DestroyRenderer(app.renderer);
   SDL_DestroyWindow(app.window);
   SDL_Quit();

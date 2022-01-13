@@ -6,11 +6,20 @@
 #include "rendering.h"
 
 Entity *entList[LAYER_MAX];
+NetworkID nextNetworkID = 1;
+
+pthread_mutex_t entitiesLockHook;
 
 void initEntities()
 {
 	for(unsigned char layer = 0; layer < LAYER_MAX; layer++)
 		entList[layer] = NULL;
+
+	if (pthread_mutex_init(&entitiesLockHook, NULL) != 0)
+	{
+			Log("ERROR, can't init mutex for entities");
+			exit(1);
+	}
 }
 
 Vector2D getNonRotatedPosition(Entity *ent)
@@ -232,6 +241,13 @@ void RotateTo(Entity *ent, Vector2D p, float speed)
 
 	if(diff < 180) ent->localRotation = rot+speed;
 	else ent->localRotation = rot-speed;
+}
+
+NetworkID AssignNetworkID(Entity *ent)
+{
+	ent->networkID = nextNetworkID;
+	nextNetworkID++;
+	return nextNetworkID-1;
 }
 
 void updateEntities(App *app)

@@ -16,6 +16,8 @@ int NetworkRole = ROLE_HOST;
 int udpSocket = -1;
 socklen_t addrlen;
 
+void *networkSettingsPtr = NULL;
+
 pthread_t sockThread;
 int exitThread = 0;
 

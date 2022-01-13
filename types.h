@@ -112,4 +112,28 @@ typedef unsigned char NetworkFlags;
 
 typedef unsigned char NetworkDatagram[NETWORK_MAX_DATAGRAM];
 
+typedef struct 
+{
+  char *address;
+  int port;
+
+  void (*onConnectionAttempt)(int *accept, struct sockaddr *addr);
+  void (*onConnection)(NetworkClient *c);
+  void (*onDisconnection)(NetworkClient *c);
+  void (*onData)(NetworkClient *c, unsigned char *data, ssize_t size);
+  float clientTimeoutTime; 
+} NetworkHostSettings;
+
+typedef struct
+{
+  char *serverAddress;
+  int serverPort;
+
+  void (*onConnection)(int status);
+  void (*onDisconnection)(int status);
+  void (*onData)(unsigned char * data, ssize_t size);
+
+  float timeoutTime; 
+} NetworkClientSettings;
+
 #endif

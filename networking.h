@@ -16,7 +16,10 @@
 #define NETWORK_STATUS_SUCCESS                1
 #define NETWORK_STATUS_CONNECTION_DECLINED   -1
 #define NETWORK_STATUS_SERVER_NOT_RESPONDING -2
-#define NETWORK_STATUS_KICKED                -3
+#define NETWORK_STATUS_CLIENT_NOT_RESPONDING -3
+#define NETWORK_STATUS_KICKED                -4
+
+#define TIMEOUT_DISABLE -1
 
 #define DATAGRAM_FLAGS(d) (((unsigned char *)d))
 #define DATAGRAM_DATA(d) (((unsigned char *)d)+1)
@@ -27,6 +30,8 @@ extern int NetworkRole;
 extern NetworkClient *clients;
 extern int udpSocket;
 
+extern void *networkSettingsPtr;
+
 extern pthread_t sockThread;
 extern int exitThread;
 
@@ -35,22 +40,11 @@ extern socklen_t addrlen;
 void sendDatagram(NetworkDatagram *datagram, ssize_t dataLength, struct sockaddr *addr, socklen_t addrlen);
 void killSocket();
 
-void HostServer(
-  char *address, int port, 
-  void (*onConnectionAttempt)(int *accept, struct sockaddr *addr),
-  void (*onConnection)(NetworkClient *c),
-  void (*onDisconnection)(NetworkClient *c),
-  void (*onData)(NetworkClient *c, unsigned char *data, ssize_t size)
-);
+void HostServer(NetworkHostSettings *settings);
 void SendToClient(NetworkClient *c, NetworkDatagram *datagram, ssize_t dataLength);
 void CloseServer();
 
-void Connect(
-  char *address, int port,
-  void (*onConnectionPtr)(int status),
-  void (*onDisconnectionPtr)(int status),
-  void (*onDataPtr)(unsigned char * data, ssize_t size)
-);
+void Connect(NetworkClientSettings *settings);
 void SendToServer(NetworkDatagram *datagram, ssize_t dataLength);
 void Disconnect();
 
