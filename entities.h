@@ -10,11 +10,6 @@
 
 #define NO_NETWORK_ID 0
 
-#define LOCK_ENTITIES()   pthread_mutex_lock(&entitiesLockHook)
-#define UNLOCK_ENTITIES() pthread_mutex_unlock(&entitiesLockHook)
-
-extern pthread_mutex_t entitiesLockHook;
-
 Entity *SpawnEntity(
   float x,
   float y, 

@@ -37,6 +37,8 @@ extern int exitThread;
 
 extern socklen_t addrlen;
 
+extern pthread_mutex_t clientsLock;
+
 void sendDatagram(NetworkDatagram *datagram, ssize_t dataLength, struct sockaddr *addr, socklen_t addrlen);
 void killSocket();
 

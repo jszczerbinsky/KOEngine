@@ -129,6 +129,7 @@ void KOEngineInit(char *windowName, void (*onStartPtr)(), void (*loopCallPtr)())
 
 	unsigned int timer = SDL_GetTicks();
 
+	initMultithreading();
 	initEntities();
 
 	Log("Done, starting game");
@@ -145,15 +146,15 @@ void KOEngineInit(char *windowName, void (*onStartPtr)(), void (*loopCallPtr)())
 		if(waitFor < 0) waitFor = 0;
 		SDL_Delay(waitFor);
 
-		LOCK_ENTITIES();
+		LOCK();
 
 		(*loopCallPtr)();
 		updateEntities(&app);
 
-		UNLOCK_ENTITIES();	
-
 		if(NetworkRole == ROLE_HOST && SOCKET_WORKING())
 			updateClients();
+
+		UNLOCK();
 
 		frameShow();
 	}
@@ -164,7 +165,8 @@ void KOEngineExit()
 {
 	Log("Closing");
 	freeEntities();
-	pthread_mutex_destroy(&entitiesLockHook);
+	freeMultithreading();
+	pthread_mutex_destroy(&clientsLock);
 	SDL_DestroyRenderer(app.renderer);
   SDL_DestroyWindow(app.window);
   SDL_Quit();

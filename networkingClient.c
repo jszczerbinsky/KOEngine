@@ -2,6 +2,7 @@
 #include <arpa/inet.h>
 #include "networking.h"
 #include "log.h"
+#include "KOEngine.h"
 
 #define CLIENT_SETTINGS ((NetworkClientSettings*)networkSettingsPtr)
 
@@ -73,6 +74,8 @@ void *clientTask(void *threadid)
     {
       timeoutSeconds = 0;
 
+      LOCK();
+
       if((*DATAGRAM_FLAGS(&buff)) == NETWORK_FLAG_DISCONNECT)
       {
         Log("Kicked by server");
@@ -88,6 +91,8 @@ void *clientTask(void *threadid)
         if(CLIENT_SETTINGS->onData)
           (*CLIENT_SETTINGS->onData)(DATAGRAM_DATA(buff), dataSize);
       }
+
+      UNLOCK();
     }
     else
     {
@@ -96,8 +101,13 @@ void *clientTask(void *threadid)
       {
         Log("Server connection timeout");
 
+        LOCK();
+
         if(CLIENT_SETTINGS->onDisconnection)
           (*CLIENT_SETTINGS->onDisconnection)(NETWORK_STATUS_SERVER_NOT_RESPONDING);
+
+        UNLOCK();
+
         killSocket();
       }
     }

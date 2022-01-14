@@ -9,6 +9,7 @@
 #include <signal.h>
 #include <unistd.h>
 #include "networking.h"
+#include "KOEngine.h"
 #include "types.h"
 #include "log.h"
 
@@ -68,7 +69,7 @@ void *hostTask(void *threadid)
 
     if(bytes > 0)
     {
-      pthread_mutex_lock(&clientsLock);
+      LOCK();
       NetworkClient *matchedClient = NULL;
       while(next && !matchedClient)
       {
@@ -111,7 +112,7 @@ void *hostTask(void *threadid)
             sendDatagram(&buff, 0, (struct sockaddr *)&addr, addrlen);
           }
         }
-              }
+      }
       else
       {
         matchedClient->lastDatagram = time(NULL); 
@@ -126,8 +127,9 @@ void *hostTask(void *threadid)
           removeClient(matchedClient);
         }
       }
-      pthread_mutex_unlock(&clientsLock);
+      UNLOCK();
     }
+    LOCK();
     c = clients;
     next = c;
 
@@ -147,6 +149,7 @@ void *hostTask(void *threadid)
       }
       c = next;
     }
+    UNLOCK();
   }
 }
 
@@ -156,12 +159,10 @@ void HostServer(NetworkHostSettings *settings)
 
   NetworkRole = ROLE_HOST;
 
-  pthread_mutex_init(&clientsLock, NULL);
 
 	udpSocket = socket(PF_INET, SOCK_DGRAM, 0);
   if(udpSocket == -1)
   {
-    pthread_mutex_destroy(&clientsLock);
     Log("ERROR, can't create socket");
     return;
   }
@@ -185,7 +186,6 @@ void HostServer(NetworkHostSettings *settings)
  	if(bind(udpSocket, (struct sockaddr *)&hostAddr, sizeof(hostAddr)) == -1)
   {
     Log("ERROR, can't host a server on port %d", HOST_SETTINGS->port);
-    pthread_mutex_destroy(&clientsLock);
     return;
   }
 
@@ -197,16 +197,12 @@ void updateClients()
 {
   if(!HOST_SETTINGS->clientLoopCall) return;
   
-  pthread_mutex_lock(&clientsLock);
-
   NetworkClient *c = clients;
   while(c)
   {
     (*HOST_SETTINGS->clientLoopCall)(c);
     c = c->next;
   }
-
-  pthread_mutex_unlock(&clientsLock);
 }
 
 void CloseServer()
