@@ -1,4 +1,5 @@
 #include "ui.h"
+#include "rendering.h"
 
 Font *LoadFont(char *path, int size, SDL_Color color)
 {
@@ -62,39 +63,5 @@ Entity *CreateUIObject(int x, int y, unsigned short width, unsigned short height
 
 void SetUIText(Entity *ent, char *text)
 {
-	App *app = getAppInfo();
-
-	SDL_SetRenderTarget(app->renderer, ent->ui->textTexture);
-	SDL_SetRenderDrawColor(app->renderer, 0, 0, 0, 0);
-	SDL_RenderClear(app->renderer);
-
-	if(text == NULL || strlen(text) < 1)
-	{
-		SDL_SetRenderTarget(app->renderer, NULL);
-		return;
-	}
-	
-	char *ptr = text;
-
-	SDL_Rect dest;
-	dest.x = 0;
-	dest.y = 0;
-
-	while((*ptr) >= FONT_GLYPH_MIN && (*ptr) < FONT_GLYPH_MAX)
-	{
-		dest.w = ent->ui->font->glyphWidths[(*ptr)-FONT_GLYPH_MIN];
-		dest.h = ent->ui->font->height;
-
-		SDL_RenderCopy(
-			app->renderer,
-			ent->ui->font->glyphs[(*ptr)-FONT_GLYPH_MIN],
-			NULL,
-			&dest
-		);
-
-		dest.x += ent->ui->font->glyphWidths[(*ptr)-FONT_GLYPH_MIN];
-		ptr++;
-	}
-
-	SDL_SetRenderTarget(app->renderer, NULL);
+	renderTextOnTextTexture(ent, getAppInfo(), text);
 }

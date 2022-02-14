@@ -97,3 +97,101 @@ void renderEntity(Entity *e, Vector2D pos, Vector2D camPos, App *app)
 		}
 	}
 }
+
+void renderTextLineOnTextTexture(unsigned short y, Entity *ent, char **ptr, App *app)
+{
+	unsigned short totalWidth = 0;
+
+	char *ptr2 = *ptr;
+
+	while(*ptr2 != '\n' && *ptr2 != '\0')
+	{
+		totalWidth += ent->ui->font->glyphWidths[(*ptr2)-FONT_GLYPH_MIN];
+		ptr2++;
+	}
+
+	SDL_Rect dest;
+	dest.y = y;
+	dest.h = ent->ui->font->height;
+
+	switch((ent->ui->flags & UI_PARAMETERS_FLAGS_HORIZONTAL_ALIGN_MASK))
+	{
+		case TEXT_ALIGN_H_LEFT:
+			dest.x = 0;
+			break;
+		case TEXT_ALIGN_H_RIGHT:
+			dest.x = ent->width - totalWidth;
+			break;
+		case TEXT_ALIGN_H_CENTER:
+			dest.x = ent->width/2 - totalWidth/2;
+			break;
+	}
+
+	while(**ptr != '\n' && **ptr != '\0')
+	{
+		if(**ptr < FONT_GLYPH_MIN || **ptr >= FONT_GLYPH_MAX)
+		{
+			Log("Incorrect char: %c (%d)\n", **ptr, **ptr);
+			(*ptr)++;
+			continue;
+		}
+		dest.w = ent->ui->font->glyphWidths[(**ptr)-FONT_GLYPH_MIN];
+		SDL_RenderCopy(
+			app->renderer,
+			ent->ui->font->glyphs[(**ptr)-FONT_GLYPH_MIN],
+			NULL,
+			&dest
+		);
+		dest.x += ent->ui->font->glyphWidths[(**ptr)-FONT_GLYPH_MIN];
+		(*ptr)++;
+	}
+}
+
+void renderTextOnTextTexture(Entity *ent, App *app, char *text)
+{
+	SDL_SetRenderTarget(app->renderer, ent->ui->textTexture);
+	SDL_SetRenderDrawColor(app->renderer, 0, 0, 0, 0);
+	SDL_RenderClear(app->renderer);
+
+	if(text == NULL || strlen(text) < 1)
+	{
+		SDL_SetRenderTarget(app->renderer, NULL);
+		return;
+	}
+	
+	unsigned int totalHeight = ent->ui->font->height;
+	char *ptr = text;
+
+	while((*ptr) != '\0')
+	{
+		if(*ptr == '\n') totalHeight += ent->ui->font->height;	
+		ptr++;
+	}
+
+	ptr = text;
+	unsigned int y = 0;
+
+	switch(ent->ui->flags & UI_PARAMETERS_FLAGS_VERTICAL_ALIGN_MASK)
+	{
+		case TEXT_ALIGN_V_TOP:
+			y = 0;
+			break;
+		case TEXT_ALIGN_V_BOTTOM:
+			y = ent->height -totalHeight;
+			break;
+		case TEXT_ALIGN_V_CENTER:
+			y = ent->height/2 - totalHeight/2;
+			break;
+	}
+
+	while((*ptr) != '\0')
+	{
+		renderTextLineOnTextTexture(y, ent, &ptr, app);	
+		if(*ptr == '\0') break;
+		y += ent->ui->font->height;
+		ptr++;
+	}
+
+	SDL_SetRenderTarget(app->renderer, NULL);
+
+}

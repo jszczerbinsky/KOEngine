@@ -10,6 +10,16 @@
 #define FONT_GLYPH_MIN 20
 #define FONT_GLYPH_MAX 128
 
+#define UI_PARAMETERS_FLAGS_HORIZONTAL_ALIGN_MASK 0b00000011
+#define UI_PARAMETERS_FLAGS_VERTICAL_ALIGN_MASK   0b00001100
+
+#define TEXT_ALIGN_H_LEFT   0b00000000
+#define TEXT_ALIGN_H_RIGHT  0b00000001
+#define TEXT_ALIGN_H_CENTER 0b00000010
+#define TEXT_ALIGN_V_TOP    0b00000000
+#define TEXT_ALIGN_V_BOTTOM 0b00000100 
+#define TEXT_ALIGN_V_CENTER 0b00001000
+
 #define NETWORK_MAX_DATAGRAM 1024
 
 typedef SDL_Texture Texture;
@@ -56,10 +66,14 @@ typedef enum
 
 typedef struct
 {
-  SDL_Color color;
-  Font *font;
   Texture *textTexture;
+
+  SDL_Color color;
   SDL_Color debugColor;
+
+  Font *font;
+
+  unsigned char flags;
 } UIParameters;
 
 typedef unsigned short NetworkID;
