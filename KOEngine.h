@@ -14,6 +14,7 @@
 #include "utils.h"
 #include "log.h"
 #include "networking.h"
+#include "debug.h"
 #include "multithreading.h"
 
 extern float Delay;

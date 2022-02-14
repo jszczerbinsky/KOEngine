@@ -7,11 +7,20 @@
 #include <stdbool.h>
 #include <sys/socket.h>
 
+#define FONT_GLYPH_MIN 20
+#define FONT_GLYPH_MAX 128
+
 #define NETWORK_MAX_DATAGRAM 1024
 
 typedef SDL_Texture Texture;
 typedef SDL_Color   Color;
-typedef TTF_Font    Font;
+//typedef TTF_Font    Font;
+
+typedef struct {
+  Texture *glyphs             [FONT_GLYPH_MAX-FONT_GLYPH_MIN];
+  unsigned short glyphWidths  [FONT_GLYPH_MAX-FONT_GLYPH_MIN];
+  unsigned short height;
+} Font;
 
 typedef struct {
   float x;
@@ -48,11 +57,9 @@ typedef enum
 typedef struct
 {
   SDL_Color color;
-  TTF_Font *font;
-  unsigned short maxWidth;
+  Font *font;
   Texture *textTexture;
-  unsigned short textTextureWidth;
-  unsigned short textTextureHeight;
+  SDL_Color debugColor;
 } UIParameters;
 
 typedef unsigned short NetworkID;

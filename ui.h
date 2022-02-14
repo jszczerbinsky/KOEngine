@@ -2,6 +2,10 @@
 #define KO_UI_H
 
 #include "entities.h"
+#include "ui.h"
+
+Font *LoadFont(char *path, int size, SDL_Color color);
+void CloseFont(Font *font);
 
 Entity *CreateUIObject(
     int x, int y, 

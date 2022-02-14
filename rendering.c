@@ -30,16 +30,35 @@ void renderCollider(App *app,Entity *e, Vector2D camPos)
 	);
 }
 
-void renderText(Vector2D pos, UIParameters *ui, App *app)
+void renderUIBorders(App *app,Entity *e)
+{
+	SDL_SetRenderDrawColor(
+		app->renderer, 
+		e->ui->debugColor.r,
+		e->ui->debugColor.g,
+		e->ui->debugColor.b,
+		255
+	);
+
+	SDL_Rect rect;
+	rect.x = GetPosition(e).x - e->width/2;
+	rect.y = GetPosition(e).y - e->height/2;
+	rect.w = e->width;
+	rect.h = e->height;
+	SDL_RenderDrawRect(app->renderer, &rect);
+}
+
+
+void renderText(Entity *ent, App *app)
 {
 	SDL_Rect dest;
 
-	dest.h = ui->textTextureHeight;
-	dest.w = ui->textTextureWidth;
-	dest.x = pos.x - dest.w/2;
-	dest.y = pos.y - dest.h/2;
+	dest.h = ent->height;
+	dest.w = ent->width;
+	dest.x = GetPosition(ent).x - dest.w/2;
+	dest.y = GetPosition(ent).y - dest.h/2;
 
-	SDL_RenderCopy(app->renderer, ui->textTexture, NULL, &dest);
+	SDL_RenderCopy(app->renderer, ent->ui->textTexture, NULL, &dest);
 }
 
 void renderEntity(Entity *e, Vector2D pos, Vector2D camPos, App *app)
@@ -70,7 +89,11 @@ void renderEntity(Entity *e, Vector2D pos, Vector2D camPos, App *app)
 			renderCollider(app, e, camPos);
 
 		SDL_RenderCopyEx(app->renderer, e->actualTexture, NULL, &dest, GetRotation(e), NULL, e->flip);
-		if(e->ui && e->ui->textTexture)
-			renderText(pos, e->ui, app);
+		if(e->ui)
+		{
+			renderText(e, app);
+			if((DebugFlags & DEBUG_FLAG_SHOW_UI_BORDERS) == DEBUG_FLAG_SHOW_UI_BORDERS)
+				renderUIBorders(app, e);
+		}
 	}
 }
