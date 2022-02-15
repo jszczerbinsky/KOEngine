@@ -4,17 +4,31 @@
 #include "entities.h"
 #include "ui.h"
 
+#define UI_PARAMETERS_FLAGS_HORIZONTAL_ALIGN_MASK 0b00000011
+#define UI_PARAMETERS_FLAGS_VERTICAL_ALIGN_MASK   0b00001100
+#define UI_PARAMETERS_FLAGS_TEXTWRAP_MASK         0b00110000
+
+#define TEXT_ALIGN_H_LEFT     0b00000000
+#define TEXT_ALIGN_H_RIGHT    0b00000001
+#define TEXT_ALIGN_H_CENTER   0b00000010
+#define TEXT_ALIGN_V_TOP      0b00000000
+#define TEXT_ALIGN_V_BOTTOM   0b00000100 
+#define TEXT_ALIGN_V_CENTER   0b00001000
+#define TEXT_WRAP_NO_WRAP     0b00000000
+#define TEXT_WRAP_WORD_BREAK  0b00010000
+#define TEXT_WRAP_NORMAL      0b00100000
+
 Font *LoadFont(char *path, int size, SDL_Color color);
 void CloseFont(Font *font);
 
 Entity *CreateUIObject(
     int x, int y, 
-    unsigned short width, unsigned short height, 
+    unsigned short width, 
+    unsigned short height, 
+    unsigned char flags,
     Texture *texture, 
-    unsigned short maxWidth, 
     unsigned char layer, 
-    Font *font, 
-    SDL_Color color
+    Font *font
 );
 void SetUIText(Entity *ent, char *text);
 

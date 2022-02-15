@@ -25,11 +25,11 @@ Font *LoadFont(char *path, int size, SDL_Color color)
 void CloseFont(Font *font)
 {
 	for(int i = FONT_GLYPH_MIN; i < FONT_GLYPH_MAX; ++i)
-		SDL_DestroyTexture(font->glyphs[i]);
+		SDL_DestroyTexture(font->glyphs[i-FONT_GLYPH_MIN]);
 	free(font);
 }
 
-Entity *CreateUIObject(int x, int y, unsigned short width, unsigned short height, Texture *texture, unsigned short maxWidth, unsigned char layer, Font *font, SDL_Color color)
+Entity *CreateUIObject(int x, int y, unsigned short width, unsigned short height, unsigned char flags, Texture *texture, unsigned char layer, Font *font)
 {
 	Entity *ent = SpawnEntity(
 		x,y,
@@ -47,8 +47,16 @@ Entity *CreateUIObject(int x, int y, unsigned short width, unsigned short height
 	ent->ui->debugColor.g = rand()%256;
 	ent->ui->debugColor.b = rand()%256;
 
+	ent->ui->flags = flags;
+
 	ent->ui->font = font;
-	ent->ui->textTexture = SDL_CreateTexture(app->renderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_TARGET, ent->width, ent->height);
+
+	if(font)
+	{
+		if(!(ent->ui->textTexture = SDL_CreateTexture(app->renderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_TARGET, ent->width, ent->height)))
+			Log("WARNING, can't initialize UI text texture: %s", SDL_GetError());
+	}
+
 
 	SDL_SetTextureBlendMode(ent->ui->textTexture, SDL_BLENDMODE_BLEND);
 	SDL_SetRenderTarget(app->renderer, ent->ui->textTexture);
@@ -56,12 +64,15 @@ Entity *CreateUIObject(int x, int y, unsigned short width, unsigned short height
 	SDL_RenderClear(app->renderer);
 	SDL_SetRenderTarget(app->renderer, NULL);
 
-	ent->ui->color = color;
-
 	return ent;
 }
 
 void SetUIText(Entity *ent, char *text)
 {
+	if(!ent->ui || !ent->ui->textTexture)
+	{
+		Log("WARNING, trying to print text on UI object, that has no font assigned");
+		return;
+	}
 	renderTextOnTextTexture(ent, getAppInfo(), text);
 }
