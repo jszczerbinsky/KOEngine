@@ -14,7 +14,6 @@
 
 typedef SDL_Texture Texture;
 typedef SDL_Color   Color;
-//typedef TTF_Font    Font;
 
 typedef struct {
   Texture *glyphs             [FONT_GLYPH_MAX-FONT_GLYPH_MIN];
