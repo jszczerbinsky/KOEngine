@@ -98,7 +98,7 @@ void renderEntity(Entity *e, Vector2D pos, Vector2D camPos, App *app)
 	}
 }
 
-void renderTextLineOnTextTexture(unsigned short y, Entity *ent, char **ptr, App *app)
+void renderTextLineOnTextTexture(unsigned int *y, Entity *ent, char **ptr, App *app, int countOnly)
 {
 	unsigned short totalWidth = 0;
 
@@ -107,11 +107,16 @@ void renderTextLineOnTextTexture(unsigned short y, Entity *ent, char **ptr, App 
 	while(*ptr2 != '\n' && *ptr2 != '\0')
 	{
 		totalWidth += ent->ui->font->glyphWidths[(*ptr2)-FONT_GLYPH_MIN];
+		if(totalWidth > ent->width)
+		{
+			totalWidth = ent->width;
+			break;
+		}
 		ptr2++;
 	}
 
 	SDL_Rect dest;
-	dest.y = y;
+	dest.y = *y;
 	dest.h = ent->ui->font->height;
 
 	switch((ent->ui->flags & UI_PARAMETERS_FLAGS_HORIZONTAL_ALIGN_MASK))
@@ -129,21 +134,50 @@ void renderTextLineOnTextTexture(unsigned short y, Entity *ent, char **ptr, App 
 
 	while(**ptr != '\n' && **ptr != '\0')
 	{
+		unsigned short width = ent->ui->font->glyphWidths[(**ptr)-FONT_GLYPH_MIN];
+		if(
+			(ent->ui->flags & UI_PARAMETERS_FLAGS_TEXTWRAP_MASK) == TEXT_WRAP_WORD_BREAK && 
+			dest.x + width > ent->width
+		)
+		{
+			(*ptr)--;
+			return;
+		}
+
 		if(**ptr < FONT_GLYPH_MIN || **ptr >= FONT_GLYPH_MAX)
 		{
-			Log("Incorrect char: %c (%d)\n", **ptr, **ptr);
+			Log("WARNING, incorrect char: %c (%d)\n", **ptr, **ptr);
 			(*ptr)++;
 			continue;
 		}
 		dest.w = ent->ui->font->glyphWidths[(**ptr)-FONT_GLYPH_MIN];
-		SDL_RenderCopy(
-			app->renderer,
-			ent->ui->font->glyphs[(**ptr)-FONT_GLYPH_MIN],
-			NULL,
-			&dest
-		);
-		dest.x += ent->ui->font->glyphWidths[(**ptr)-FONT_GLYPH_MIN];
+		if(!countOnly)
+			SDL_RenderCopy(
+				app->renderer,
+				ent->ui->font->glyphs[(**ptr)-FONT_GLYPH_MIN],
+				NULL,
+				&dest
+			);
+		dest.x += width;
 		(*ptr)++;
+
+		if((*((*ptr)-1)) == ' ' &&
+			(ent->ui->flags & UI_PARAMETERS_FLAGS_TEXTWRAP_MASK) == TEXT_WRAP_NORMAL
+		)
+		{
+			ptr2 = *ptr;
+			unsigned int wordWidth = 0;
+			while(*ptr2 != ' ' && *ptr2 != '\0' && *ptr2 != '\n')
+			{
+				wordWidth += ent->ui->font->glyphWidths[(*ptr2)-FONT_GLYPH_MIN];
+				ptr2++;
+			}
+			if(dest.x + wordWidth > ent->width)
+			{
+				(*ptr)--;
+				return;
+			}
+		}
 	}
 }
 
@@ -162,14 +196,19 @@ void renderTextOnTextTexture(Entity *ent, App *app, char *text)
 	unsigned int totalHeight = ent->ui->font->height;
 	char *ptr = text;
 
+	unsigned int y = 0;
+
 	while((*ptr) != '\0')
 	{
-		if(*ptr == '\n') totalHeight += ent->ui->font->height;	
+		totalHeight += ent->ui->font->height;
+		renderTextLineOnTextTexture(&y, ent, &ptr, app, 1);	
+		if(*ptr == '\0') break;
+		y += ent->ui->font->height;
 		ptr++;
 	}
 
+	y = 0;
 	ptr = text;
-	unsigned int y = 0;
 
 	switch(ent->ui->flags & UI_PARAMETERS_FLAGS_VERTICAL_ALIGN_MASK)
 	{
@@ -186,7 +225,7 @@ void renderTextOnTextTexture(Entity *ent, App *app, char *text)
 
 	while((*ptr) != '\0')
 	{
-		renderTextLineOnTextTexture(y, ent, &ptr, app);	
+		renderTextLineOnTextTexture(&y, ent, &ptr, app, 0);	
 		if(*ptr == '\0') break;
 		y += ent->ui->font->height;
 		ptr++;
