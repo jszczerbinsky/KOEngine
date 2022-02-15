@@ -200,11 +200,11 @@ void renderTextOnTextTexture(Entity *ent, App *app, char *text)
 
 	while((*ptr) != '\0')
 	{
-		totalHeight += ent->ui->font->height;
 		renderTextLineOnTextTexture(&y, ent, &ptr, app, 1);	
 		if(*ptr == '\0') break;
 		y += ent->ui->font->height;
 		ptr++;
+		totalHeight += ent->ui->font->height;
 	}
 
 	y = 0;
