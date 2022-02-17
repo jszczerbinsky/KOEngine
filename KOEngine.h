@@ -1,7 +1,6 @@
 #ifndef KO_KOENGINE_H
 #define KO_KOENGINE_H
 
-#include <stdint.h>
 #include "collisions.h"
 #include "entities.h"
 #include "keyboard.h"
