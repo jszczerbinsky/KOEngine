@@ -1,9 +1,11 @@
 #include <stdarg.h>
 
 #include "entities.h"
-#include "collisions.h"
-#include "debug.h"
-#include "rendering.h"
+#include "KOEngine.h"
+
+extern bool checkCollision(Entity *ent1, Entity *ent2);
+
+extern void renderEntity  (Entity *e, Vector2D pos, Vector2D camPos);
 
 Entity *entList[LAYER_MAX];
 NetworkID nextNetworkID = 1;
@@ -132,7 +134,7 @@ void MoveTo(Entity *ent, Vector2D dest, float speed)
 	Move(ent, xNormal * speed, yNormal * speed);
 }
 
-void addEntity(Entity *ent, unsigned char layer)
+void addEntity(Entity *ent, unsigned int layer)
 {
 	ent->next = entList[layer];
 
@@ -143,38 +145,40 @@ void addEntity(Entity *ent, unsigned char layer)
 
 }
 
-Entity *SpawnEntity(float x, float y, unsigned short width, unsigned short height, Collider collider, SDL_Texture *texture, unsigned char layer)
+Entity *SpawnEntity(struct EntitySpawnSettings *s)
 {
 	Entity *ent = malloc(sizeof(Entity));
-	ent->networkID = NO_NETWORK_ID;
-	ent->layer = layer;
-	ent->ui = NULL;
-	ent->parent = NULL;
-	ent->localPosition.x = x;
-	ent->localPosition.y = y;
-	ent->localRotation = 0;
-	ent->width = width;
-	ent->height = height;
-	ent->collider = collider;
-	ent->defaultTexture = texture;
-	ent->actualTexture = texture;
-	ent->animationCounter = 0;
-	ent->actualAnimation = NULL;
-	ent->onAnimationEnd = NULL;
-	ent->colliderMode = COLLIDER_MODE_NORMAL;
-	ent->onCollision = NULL;
-	ent->flip = SDL_FLIP_NONE;
-	ent->loopCall = NULL;
-	ent->extensionType = 0;
-	ent->extension = NULL;
-	ent->freeExtension = NULL;
+
+	ent->networkID 							= NO_NETWORK_ID;
+	ent->layer 									= s->layer;
+	ent->ui 										= NULL;
+	ent->parent 								= NULL;
+	ent->localPosition.x 				= s->x;
+	ent->localPosition.y 				= s->y;
+	ent->localRotation 					= 0;
+	ent->width 									= s->width;
+	ent->height 								= s->height;
+	ent->defaultTexture 				= s->texture;
+	ent->actualTexture 					= s->texture;
+	ent->animationCounter 			= 0;
+	ent->actualAnimation 				= NULL;
+	ent->onAnimationEnd 				= NULL;
+	ent->colliderMode 					= COLLIDER_MODE_NORMAL;
+	ent->onCollision 						= NULL;
+	ent->flip 									= SDL_FLIP_NONE;
+	ent->loopCall 							= NULL;
+	ent->extensionType 					= 0;
+	ent->extension 							= NULL;
+	ent->freeExtension 					= NULL;
 
 	ent->prev = NULL;
 	ent->next = NULL;
 
-	addEntity(ent, layer);	
+	NullCollider(&ent->collider);
 
-	return entList[layer];
+	addEntity(ent, s->layer);	
+
+	return entList[s->layer];
 }
 
 void KillEntity(Entity *entity)
@@ -242,7 +246,7 @@ NetworkID AssignNetworkID(Entity *ent)
 	return nextNetworkID-1;
 }
 
-void updateEntities(App *app)
+void updateEntities()
 {
 	Vector2D camPos = GetCameraPosition();
 
@@ -270,7 +274,7 @@ void updateEntities(App *app)
 				if(e->actualAnimation) e->actualTexture = e->actualAnimation->textures[(int)(e->animationCounter)];
 			}
 
-			renderEntity(e, pos, camPos, app);
+			renderEntity(e, pos, camPos);
 
 			if(e->loopCall != NULL)
 				(*e->loopCall)(e);	

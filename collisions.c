@@ -1,15 +1,10 @@
-#ifndef GAME_COLLISIONS_H
-#define GAME_COLLISIONS_H
-
 #include "collisions.h"
 #include "types.h"
 
-Collider GenerateNullCollider()
+void NullCollider(Collider *col)
 {
-	Collider col;
-	col.verticesCount = 0;
-	col.vertices = NULL;
-	return col;
+	col->verticesCount = 0;
+	col->vertices = NULL;
 }
 
 bool checkCollision(Entity *ent1, Entity *ent2)
@@ -92,40 +87,31 @@ bool checkCollision(Entity *ent1, Entity *ent2)
 	return true;
 }
 
-Collider RectCollider(short x, short y, unsigned short width, unsigned short height)
+void RectCollider(Collider *col, struct RectColliderSettings *s)
 {
-	Collider col;
-	col.verticesCount = 4;
-	col.vertices = malloc(4*sizeof(Vector2D));
+	col->verticesCount = 4;
+	col->vertices = malloc(4*sizeof(Vector2D));
 
-	col.vertices[0].x = x-width/2;
-	col.vertices[0].y = y+height/2;
-	col.vertices[1].x = x+width/2;
-	col.vertices[1].y = y+height/2;
-	col.vertices[2].x = x+width/2;
-	col.vertices[2].y = y-height/2;
-	col.vertices[3].x = x-width/2;
-	col.vertices[3].y = y-height/2;
-
-	return col;
-
+	col->vertices[0].x = s->centerX - s->width  /2;
+	col->vertices[0].y = s->centerY + s->height /2;
+	col->vertices[1].x = s->centerX + s->width  /2;
+	col->vertices[1].y = s->centerY + s->height	/2;
+	col->vertices[2].x = s->centerX + s->width	/2;
+	col->vertices[2].y = s->centerY - s->height	/2;
+	col->vertices[3].x = s->centerX - s->width	/2;
+	col->vertices[3].y = s->centerY - s->height	/2;
 }
 
-Collider RegularCollider(short x, short y, unsigned short size, unsigned char edges)
+void RegularCollider(Collider *col, struct RegularColliderSettings *s)
 {
-	Collider col;
-	col.verticesCount = edges;
-	col.vertices = malloc(edges*sizeof(Vector2D));
+	col->verticesCount = s->edges;
+	col->vertices = malloc(s->edges*sizeof(Vector2D));
 
-	float angle = M_PI * 2 /edges;
+	float angle = M_PI * 2 /s->edges;
 
-	for(unsigned char i = 0; i < edges; i++)
+	for(unsigned char i = 0; i < s->edges; i++)
 	{
-		col.vertices[i].x = size*sin(i*angle)+x;
-		col.vertices[i].y = size*cos(i*angle)+y;
+		col->vertices[i].x = s->radius*sin(i*angle)+s->centerX;
+		col->vertices[i].y = s->radius*cos(i*angle)+s->centerY;
 	}
-
-	return col;
 }
-
-#endif

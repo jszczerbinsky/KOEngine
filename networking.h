@@ -5,6 +5,8 @@
 #include <sys/socket.h>
 #include "types.h"
 
+#define NETWORK_DATAGRAM_MAX_BYTES 1024
+
 #define ROLE_HOST   0
 #define ROLE_CLIENT 1
 
@@ -22,33 +24,43 @@
 #define TIMEOUT_DISABLE -1
 
 #define DATAGRAM_FLAGS(d) (((unsigned char *)d))
-#define DATAGRAM_DATA(d) (((unsigned char *)d)+1)
+#define DATAGRAM_DATA(d) (d+1)
 
-#define SOCKET_WORKING() (udpSocket != -1)
+struct NetworkHostSettings
+{
+  char   *address;
+  int     port;
+  float   clientTimeoutTime; 
 
-extern int NetworkRole;
-extern NetworkClient *clients;
-extern int udpSocket;
+  void (* onConnectionAttempt )( int *accept, struct sockaddr *addr                   );
+  void (* onConnection        )( NetworkClient *c                                     );
+  void (* onDisconnection     )( NetworkClient *c                                     );
+  void (* onData              )( NetworkClient *c, unsigned char *data, ssize_t size  );
+  void (* clientLoopCall      )( NetworkClient *c                                     );
+};
 
-extern void *networkSettingsPtr;
+struct NetworkClientSettings
+{
+  char   *serverAddress;
+  int     serverPort;
+  float   timeoutTime; 
 
-extern pthread_t sockThread;
-extern int exitThread;
+  void (* onConnection        )( int status                         );
+  void (* onDisconnection     )( int status                         );
+  void (* onData              )( unsigned char *data, ssize_t size  );
+};
 
-extern socklen_t addrlen;
+extern int            NetworkRole;
+extern NetworkClient *ClientList;
 
-extern pthread_mutex_t clientsLock;
+bool SocketWorking();
 
-void sendDatagram(NetworkDatagram *datagram, ssize_t dataLength, struct sockaddr *addr, socklen_t addrlen);
-void killSocket();
-
-void updateClients();
-void HostServer(NetworkHostSettings *settings);
-void SendToClient(NetworkClient *c, NetworkDatagram *datagram, ssize_t dataLength);
+void HostServer(struct NetworkHostSettings *settings);
+void SendToClient(NetworkClient *c, unsigned char *datagram, ssize_t dataLength);
 void CloseServer();
 
-void Connect(NetworkClientSettings *settings);
-void SendToServer(NetworkDatagram *datagram, ssize_t dataLength);
+void Connect(struct NetworkClientSettings *settings);
+void SendToServer(unsigned char *datagram, ssize_t dataLength);
 void Disconnect();
 
 #endif

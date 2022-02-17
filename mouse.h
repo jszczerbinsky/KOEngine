@@ -7,10 +7,6 @@
 Vector2D GetMousePosition     ();
 Vector2D GetMouseWorldPosition();
 
-void resetButtons ();
-void setButtonUp  (MouseButton btn);
-void setButtonDown(MouseButton btn);
-
 bool ButtonDown (MouseButton btn);
 bool ButtonUp   (MouseButton btn);
 bool ButtonPress(MouseButton btn);

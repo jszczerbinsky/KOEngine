@@ -9,9 +9,8 @@ Vector2D PositionScreenToWorld(Vector2D pos)
 	pos.x += GetCameraPosition().x;
 	pos.y += GetCameraPosition().y;
 
-	App * app = getAppInfo();
-	pos.x -= app->resX/2;
-	pos.y -= app->resY/2;
+	pos.x -= WindowResolution.width/2;
+	pos.y -= WindowResolution.height/2;
 
 	return pos;
 }
@@ -21,9 +20,8 @@ Vector2D PositionWorldToScreen(Vector2D pos)
 	pos.x -= GetCameraPosition().x;
 	pos.y -= GetCameraPosition().y;
 
-	App * app = getAppInfo();
-	pos.x += app->resX/2;
-	pos.y += app->resY/2;
+	pos.x += WindowResolution.width/2;
+	pos.y += WindowResolution.height/2;
 
 	return pos;
 }

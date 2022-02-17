@@ -4,39 +4,62 @@
 #include "KOEngine.h"
 #include "log.h"
 
-App app = { .resX = 800, .resY = 600};
+extern void setKeyUp  (SDL_KeyboardEvent *event);
+extern void setKeyDown(SDL_KeyboardEvent *event);
+extern void resetKeys ();
 
-uint8_t bgR = 0;
-uint8_t bgG = 0;
-uint8_t bgB = 0;
+extern void resetButtons ();
+extern void setButtonUp  (MouseButton btn);
+extern void setButtonDown(MouseButton btn);
+
+extern void initEntities();
+extern void freeEntities();
+extern void updateEntities();
+
+extern void updateClients();
+
+extern void initMultithreading();
+extern void freeMultithreading();
+
+SDL_Window   *window;
+SDL_Renderer *renderer;
+
+struct Resolution WindowResolution = {
+	.width  = 800,
+	.height = 600
+};
+
+Color windowBg = {
+	.r = 0,
+	.g = 0,
+	.b = 0
+};
 
 float Delay = 0;
 
-App * getAppInfo()
+void SetResolution(unsigned int width, unsigned int height)
 {
-	return &app;
+	WindowResolution.width 	= width;
+	WindowResolution.height = height;
+
+	if(window)
+		SDL_SetWindowSize(window, width, height);
 }
 
-void SetResolution(unsigned short width, unsigned short height)
+void SetWindowMode(unsigned int mode)
 {
-	app.resX = width;
-	app.resY = height;
-
-	if(app.window)
-		SDL_SetWindowSize(app.window, width, height);
+  SDL_SetWindowFullscreen(window, mode);
 }
 
-void SetBackground(uint8_t r, uint8_t g, uint8_t b)
+void SetBackground(Color *c)
 {
-	bgR = r;
-	bgG = g;
-	bgB = b;
+	memcpy(&windowBg, c, sizeof(Color));
 }
 
 void initApp(char * windowName)
 {
-	app.window = NULL;
-	app.renderer = NULL;
+	window = NULL;
+	renderer = NULL;
 
   int rendererFlags = SDL_RENDERER_ACCELERATED; 
   int windowFlags = 0;
@@ -47,15 +70,15 @@ void initApp(char * windowName)
 		exit(1);
 	}
 
-  app.window = SDL_CreateWindow(
+  window = SDL_CreateWindow(
       windowName, 
       SDL_WINDOWPOS_UNDEFINED, 
       SDL_WINDOWPOS_UNDEFINED, 
-      app.resX, 
-      app.resY, 
+      WindowResolution.width, 
+      WindowResolution.height, 
       windowFlags);
 
-  if (!app.window)
+  if (!window)
 	{
 		Log("ERROR, failed to open window: %s", SDL_GetError());
 		exit(1);
@@ -63,9 +86,9 @@ void initApp(char * windowName)
 
   SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "1");
 
-	app.renderer = SDL_CreateRenderer(app.window, -1, rendererFlags);
+	renderer = SDL_CreateRenderer(window, -1, rendererFlags);
 
-	if (!app.renderer)
+	if (!renderer)
 	{
 		Log("ERROR, failed to create renderer: %s", SDL_GetError());
 		exit(1);
@@ -74,13 +97,13 @@ void initApp(char * windowName)
 
 void frameInit()
 {
-  SDL_SetRenderDrawColor(app.renderer, bgR, bgG, bgB, 255);
-	SDL_RenderClear(app.renderer);
+  SDL_SetRenderDrawColor(renderer, windowBg.r, windowBg.g, windowBg.b, 255);
+	SDL_RenderClear(renderer);
 }
 
 void frameShow()
 {
-  SDL_RenderPresent(app.renderer);
+  SDL_RenderPresent(renderer);
 }
 
 void getInput()
@@ -149,9 +172,9 @@ void KOEngineInit(char *windowName, void (*onStartPtr)(), void (*loopCallPtr)())
 		LOCK();
 
 		(*loopCallPtr)();
-		updateEntities(&app);
+		updateEntities();
 
-		if(NetworkRole == ROLE_HOST && SOCKET_WORKING())
+		if(NetworkRole == ROLE_HOST && SocketWorking())
 			updateClients();
 
 		UNLOCK();
@@ -166,9 +189,8 @@ void KOEngineExit()
 	Log("Closing");
 	freeEntities();
 	freeMultithreading();
-	pthread_mutex_destroy(&clientsLock);
-	SDL_DestroyRenderer(app.renderer);
-  SDL_DestroyWindow(app.window);
+	SDL_DestroyRenderer(renderer);
+  SDL_DestroyWindow(window);
   SDL_Quit();
 	TTF_Quit();
 	exit(0);

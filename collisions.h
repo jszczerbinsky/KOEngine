@@ -7,11 +7,24 @@
 #define COLLIDER_MODE_NORMAL 0
 #define COLLIDER_MODE_EVENTS_ONLY 1
 
-Collider GenerateNullCollider();
+struct RectColliderSettings
+{
+  int centerX;
+  int centerY;
+  unsigned int width;
+  unsigned int height;
+};
 
-Collider RectCollider   (short x, short y, unsigned short width, unsigned short height);
-Collider RegularCollider(short x, short y, unsigned short size, unsigned char edges);
+struct RegularColliderSettings
+{
+  int centerX;
+  int centerY;
+  unsigned int radius;
+  unsigned int edges;
+};
 
-bool checkCollision(Entity *ent1, Entity *ent2);
+void NullCollider     ( Collider *col                                    );
+void RectCollider     ( Collider *col, struct RectColliderSettings *s    );
+void RegularCollider  ( Collider *col, struct RegularColliderSettings *s );
 
 #endif

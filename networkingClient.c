@@ -4,11 +4,20 @@
 #include "log.h"
 #include "KOEngine.h"
 
-#define CLIENT_SETTINGS ((NetworkClientSettings*)networkSettingsPtr)
+#define CLIENT_SETTINGS ((struct NetworkClientSettings*)networkSettingsPtr)
+
+extern void sendDatagram(unsigned char *datagram, ssize_t dataLength, struct sockaddr *addr, socklen_t addrlen);
+extern void killSocket();
+
+extern int            udpSocket;
+extern void          *networkSettingsPtr;
+extern pthread_t      sockThread;
+extern int            exitThread;
+extern socklen_t      addrlen;
 
 struct sockaddr_in serverAddr;
 
-void SendToServer(NetworkDatagram *datagram, ssize_t dataLength)
+void SendToServer(unsigned char *datagram, ssize_t dataLength)
 {
   sendDatagram(datagram, dataLength, (struct sockaddr *)&serverAddr, addrlen);
 }
@@ -19,22 +28,22 @@ void *clientTask(void *threadid)
 
   ssize_t bytes;
 
-  NetworkDatagram buff;
+  unsigned char buff[NETWORK_DATAGRAM_MAX_BYTES];
   (*DATAGRAM_FLAGS(&buff)) = NETWORK_FLAG_CONNECT;
-  SendToServer(&buff, 0);
+  SendToServer(buff, 0);
 
   int status = NETWORK_STATUS_SERVER_NOT_RESPONDING;
 
   for(int tries = 0; tries < 10; tries++)
   {
-    (*DATAGRAM_FLAGS(&buff)) = 0;
+    (*DATAGRAM_FLAGS(buff)) = 0;
 
     bytes = recvfrom(udpSocket, &buff, 1, 0, NULL, NULL);
     if(exitThread) killSocket();
 
     if(bytes > 0)
     {
-      if((*DATAGRAM_FLAGS(&buff)) == NETWORK_FLAG_ACCEPTED) status = NETWORK_STATUS_SUCCESS;
+      if((*DATAGRAM_FLAGS(buff)) == NETWORK_FLAG_ACCEPTED) status = NETWORK_STATUS_SUCCESS;
       else status = NETWORK_STATUS_CONNECTION_DECLINED;
       break;
     }
@@ -57,12 +66,12 @@ void *clientTask(void *threadid)
     (*CLIENT_SETTINGS->onConnection)(status);
 
   if(status != NETWORK_STATUS_SUCCESS) killSocket();
-  (*DATAGRAM_FLAGS(&buff)) = 0;
+  (*DATAGRAM_FLAGS(buff)) = 0;
 
   int timeoutSeconds = 0;
   while(1)
   {
-    bytes = recvfrom(udpSocket, &buff, NETWORK_MAX_DATAGRAM, 0, NULL, NULL);
+    bytes = recvfrom(udpSocket, buff, NETWORK_DATAGRAM_MAX_BYTES, 0, NULL, NULL);
     if(exitThread)
     {
       if(CLIENT_SETTINGS->onDisconnection)
@@ -76,7 +85,7 @@ void *clientTask(void *threadid)
 
       LOCK();
 
-      if((*DATAGRAM_FLAGS(&buff)) == NETWORK_FLAG_DISCONNECT)
+      if((*DATAGRAM_FLAGS(buff)) == NETWORK_FLAG_DISCONNECT)
       {
         Log("Kicked by server");
 
@@ -113,7 +122,7 @@ void *clientTask(void *threadid)
     }
   }
 }
-void Connect(NetworkClientSettings *settings)
+void Connect(struct NetworkClientSettings *settings)
 {
   networkSettingsPtr = settings;
 
@@ -144,9 +153,9 @@ void Connect(NetworkClientSettings *settings)
 
 void Disconnect()
 {
-  NetworkDatagram buff;
-  (*DATAGRAM_FLAGS(&buff)) = NETWORK_FLAG_DISCONNECT;
-  SendToServer(&buff, 0);
+  unsigned char buff[NETWORK_DATAGRAM_MAX_BYTES];
+  (*DATAGRAM_FLAGS(buff)) = NETWORK_FLAG_DISCONNECT;
+  SendToServer(buff, 0);
 
   exitThread = 1;
   pthread_join(sockThread, NULL);

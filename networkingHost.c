@@ -13,13 +13,20 @@
 #include "types.h"
 #include "log.h"
 
-#define HOST_SETTINGS ((NetworkHostSettings*)networkSettingsPtr)
+#define HOST_SETTINGS ((struct NetworkHostSettings*)networkSettingsPtr)
 
-NetworkClient *clients = NULL;
+extern void sendDatagram(unsigned char *datagram, ssize_t dataLength, struct sockaddr *addr, socklen_t addrlen);
+extern void killSocket();
 
-pthread_mutex_t clientsLock;
+extern int            udpSocket;
+extern void          *networkSettingsPtr;
+extern pthread_t      sockThread;
+extern int            exitThread;
+extern socklen_t      addrlen;
 
-void SendToClient(NetworkClient *c, NetworkDatagram *datagram, ssize_t dataLength)
+NetworkClient *ClientList = NULL;
+
+void SendToClient(NetworkClient *c, unsigned char *datagram, ssize_t dataLength)
 {
   sendDatagram(datagram, dataLength, (struct sockaddr*)&(c->address), addrlen);
 }
@@ -29,12 +36,12 @@ NetworkClient *addClient(struct sockaddr *addr)
   NetworkClient *c = calloc(1, sizeof(NetworkClient));
   memcpy(&(c->address), addr, addrlen);
 
-  c->next = clients;
+  c->next = ClientList;
 
-  if(clients != NULL)
-    clients->prev = c;
+  if(ClientList != NULL)
+    ClientList->prev = c;
 
-  clients = c;
+  ClientList = c;
 
   return c;
 }
@@ -42,7 +49,7 @@ NetworkClient *addClient(struct sockaddr *addr)
 void removeClient(NetworkClient *c)
 {
   if(c->prev != NULL) c->prev->next = c->next; 
-  else clients = c->next;
+  else ClientList= c->next;
   if(c->next != NULL) c->next->prev = c->prev;
 
   free(c);
@@ -56,15 +63,15 @@ void *hostTask(void *threadid)
 
   while(1)
   {
-    NetworkDatagram buff;
+    unsigned char buff[NETWORK_DATAGRAM_MAX_BYTES];
     struct sockaddr_storage addr;
 
-    bytes = recvfrom(udpSocket, &buff, NETWORK_MAX_DATAGRAM, 0, (struct sockaddr *)&addr, &addrlen);
+    bytes = recvfrom(udpSocket, buff, NETWORK_DATAGRAM_MAX_BYTES, 0, (struct sockaddr *)&addr, &addrlen);
     if(exitThread) killSocket();
 
     time_t now = time(NULL);
 
-    NetworkClient *c = clients;
+    NetworkClient *c = ClientList;
     NetworkClient *next = c;
 
     if(bytes > 0)
@@ -86,7 +93,7 @@ void *hostTask(void *threadid)
 
       if(!matchedClient)
       {
-        if(*DATAGRAM_FLAGS(&buff) == NETWORK_FLAG_CONNECT)
+        if(*DATAGRAM_FLAGS(buff) == NETWORK_FLAG_CONNECT)
         {
           int accept = 1;
 
@@ -98,8 +105,8 @@ void *hostTask(void *threadid)
             NetworkClient *newC = addClient((struct sockaddr *)&addr); 
             newC->lastDatagram = now;
 
-            *DATAGRAM_FLAGS(&buff) = NETWORK_FLAG_ACCEPTED;
-            SendToClient(newC, &buff, 0);
+            *DATAGRAM_FLAGS(buff) = NETWORK_FLAG_ACCEPTED;
+            SendToClient(newC, buff, 0);
 
             if(HOST_SETTINGS->onConnection)
               (*HOST_SETTINGS->onConnection)(newC);
@@ -108,8 +115,8 @@ void *hostTask(void *threadid)
           }
           else
           {
-            *DATAGRAM_FLAGS(&buff) = NETWORK_FLAG_DECLINED;
-            sendDatagram(&buff, 0, (struct sockaddr *)&addr, addrlen);
+            *DATAGRAM_FLAGS(buff) = NETWORK_FLAG_DECLINED;
+            sendDatagram(buff, 0, (struct sockaddr *)&addr, addrlen);
           }
         }
       }
@@ -118,9 +125,9 @@ void *hostTask(void *threadid)
         matchedClient->lastDatagram = time(NULL); 
 
         if(HOST_SETTINGS->onData)
-          (*HOST_SETTINGS->onData)(matchedClient, DATAGRAM_DATA(&buff), bytes-1);
+          (*HOST_SETTINGS->onData)(matchedClient, DATAGRAM_DATA(buff), bytes-1);
 
-        if(*DATAGRAM_FLAGS(&buff) == NETWORK_FLAG_DISCONNECT)
+        if(*DATAGRAM_FLAGS(buff) == NETWORK_FLAG_DISCONNECT)
         {
           if(HOST_SETTINGS->onDisconnection)
               (*HOST_SETTINGS->onDisconnection)(matchedClient);
@@ -130,7 +137,7 @@ void *hostTask(void *threadid)
       UNLOCK();
     }
     LOCK();
-    c = clients;
+    c = ClientList;
     next = c;
 
     while(next)
@@ -143,8 +150,8 @@ void *hostTask(void *threadid)
         if(HOST_SETTINGS->onDisconnection)
           (*HOST_SETTINGS->onDisconnection)(c);
 
-        *DATAGRAM_FLAGS(&buff) = NETWORK_FLAG_DISCONNECT;
-        SendToClient(c, &buff, 0);
+        *DATAGRAM_FLAGS(buff) = NETWORK_FLAG_DISCONNECT;
+        SendToClient(c, buff, 0);
         removeClient(c);
       }
       c = next;
@@ -153,7 +160,7 @@ void *hostTask(void *threadid)
   }
 }
 
-void HostServer(NetworkHostSettings *settings)
+void HostServer(struct NetworkHostSettings *settings)
 {
   networkSettingsPtr = settings;
 
@@ -197,7 +204,7 @@ void updateClients()
 {
   if(!HOST_SETTINGS->clientLoopCall) return;
   
-  NetworkClient *c = clients;
+  NetworkClient *c = ClientList;
   while(c)
   {
     (*HOST_SETTINGS->clientLoopCall)(c);
@@ -209,7 +216,6 @@ void CloseServer()
 {
   exitThread = 1;
   pthread_join(sockThread, NULL);
-  while(clients)
-    removeClient(clients);
-  pthread_mutex_destroy(&clientsLock);
+  while(ClientList)
+    removeClient(ClientList);
 }

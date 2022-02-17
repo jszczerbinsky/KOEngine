@@ -61,9 +61,8 @@ Vector2D GetMouseWorldPosition()
 	mousePos.x += GetCameraPosition().x;
 	mousePos.y += GetCameraPosition().y;
 
-	App * app = getAppInfo();
-	mousePos.x -= app->resX/2;
-	mousePos.y -= app->resY/2;
+	mousePos.x -= WindowResolution.width /2;
+	mousePos.y -= WindowResolution.height/2;
 
 	return mousePos;
 }

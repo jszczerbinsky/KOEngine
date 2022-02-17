@@ -18,18 +18,16 @@
 #define TEXT_WRAP_WORD_BREAK  0b00010000
 #define TEXT_WRAP_NORMAL      0b00100000
 
+struct UISpawnSettings
+{
+  unsigned int  flags;
+  Font         *font;
+};
+
 Font *LoadFont(char *path, int size, SDL_Color color);
 void CloseFont(Font *font);
 
-Entity *CreateUIObject(
-    int x, int y, 
-    unsigned short width, 
-    unsigned short height, 
-    unsigned char flags,
-    Texture *texture, 
-    unsigned char layer, 
-    Font *font
-);
+Entity *CreateUIObject(struct EntitySpawnSettings *s, struct UISpawnSettings *uis);
 void SetUIText(Entity *ent, char *text);
 
 #endif

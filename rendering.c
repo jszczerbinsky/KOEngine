@@ -1,11 +1,19 @@
 #include "entities.h"
+#include "KOEngine.h"
 #include "debug.h"
+#include "log.h"
+#include "ui.h"
 
-void renderCollider(App *app,Entity *e, Vector2D camPos)
+extern SDL_Renderer *renderer;
+
+extern void inheritPosition(Entity *ent, Vector2D *posPtr);
+extern Vector2D getNonRotatedPosition(Entity *ent);
+
+void renderCollider(Entity *e, Vector2D camPos)
 {
 	if(e->collider.verticesCount == 0) return;
 
-	SDL_SetRenderDrawColor(app->renderer, 255, 255, 255, 255);
+	SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
 
 	SDL_Point vertices[e->collider.verticesCount];
 
@@ -18,22 +26,22 @@ void renderCollider(App *app,Entity *e, Vector2D camPos)
 		p.y += nonRotatedParentPos.y;
 
 		inheritPosition(e, &p);
-		vertices[i].x = p.x - camPos.x + app->resX/2;
-		vertices[i].y = p.y - camPos.y + app->resY/2;
+		vertices[i].x = p.x - camPos.x + WindowResolution.width/2;
+		vertices[i].y = p.y - camPos.y + WindowResolution.height/2;
 	}
 
-	SDL_RenderDrawLines(app->renderer, vertices, e->collider.verticesCount);
-	SDL_RenderDrawLine(app->renderer, 
+	SDL_RenderDrawLines(renderer, vertices, e->collider.verticesCount);
+	SDL_RenderDrawLine(renderer, 
 			vertices[0].x, vertices[0].y,
 			vertices[e->collider.verticesCount-1].x,
 			vertices[e->collider.verticesCount-1].y
 	);
 }
 
-void renderUIBorders(App *app,Entity *e)
+void renderUIBorders(Entity *e)
 {
 	SDL_SetRenderDrawColor(
-		app->renderer, 
+		renderer, 
 		e->ui->debugColor.r,
 		e->ui->debugColor.g,
 		e->ui->debugColor.b,
@@ -45,11 +53,11 @@ void renderUIBorders(App *app,Entity *e)
 	rect.y = GetPosition(e).y - e->height/2;
 	rect.w = e->width;
 	rect.h = e->height;
-	SDL_RenderDrawRect(app->renderer, &rect);
+	SDL_RenderDrawRect(renderer, &rect);
 }
 
 
-void renderText(Entity *ent, App *app)
+void renderText(Entity *ent)
 {
 	SDL_Rect dest;
 
@@ -58,10 +66,10 @@ void renderText(Entity *ent, App *app)
 	dest.x = GetPosition(ent).x - dest.w/2;
 	dest.y = GetPosition(ent).y - dest.h/2;
 
-	SDL_RenderCopy(app->renderer, ent->ui->textTexture, NULL, &dest);
+	SDL_RenderCopy(renderer, ent->ui->textTexture, NULL, &dest);
 }
 
-void renderEntity(Entity *e, Vector2D pos, Vector2D camPos, App *app)
+void renderEntity(Entity *e, Vector2D pos, Vector2D camPos)
 {
 	SDL_Rect dest;
 
@@ -71,34 +79,34 @@ void renderEntity(Entity *e, Vector2D pos, Vector2D camPos, App *app)
 		dest.y = pos.y - e->height/2;
 	}else
 	{
-		dest.x = pos.x - e->width/2 - camPos.x + app->resX/2;
-		dest.y = pos.y - e->height/2 - camPos.y + app->resY/2;
+		dest.x = pos.x - e->width/2 - camPos.x + WindowResolution.width/2;
+		dest.y = pos.y - e->height/2 - camPos.y + WindowResolution.height/2;
 	}
 	dest.w = e->width;
 	dest.h = e->height;
 
 	if(
-			(dest.x < app->resX) &&
+			(dest.x < WindowResolution.width) &&
 			(dest.x + dest.w > 0) &&
-			(dest.y < app->resY) &&
+			(dest.y < WindowResolution.height) &&
 			(dest.x + dest.h > 0)
 	)
 	{
 
 		if((DebugFlags & DEBUG_FLAG_SHOW_COLLIDERS) == DEBUG_FLAG_SHOW_COLLIDERS)
-			renderCollider(app, e, camPos);
+			renderCollider(e, camPos);
 
-		SDL_RenderCopyEx(app->renderer, e->actualTexture, NULL, &dest, GetRotation(e), NULL, e->flip);
+		SDL_RenderCopyEx(renderer, e->actualTexture, NULL, &dest, GetRotation(e), NULL, e->flip);
 		if(e->ui)
 		{
-			renderText(e, app);
+			renderText(e);
 			if((DebugFlags & DEBUG_FLAG_SHOW_UI_BORDERS) == DEBUG_FLAG_SHOW_UI_BORDERS)
-				renderUIBorders(app, e);
+				renderUIBorders(e);
 		}
 	}
 }
 
-void renderTextLineOnTextTexture(unsigned int *y, Entity *ent, char **ptr, App *app, int countOnly)
+void renderTextLineOnTextTexture(unsigned int *y, Entity *ent, char **ptr, int countOnly)
 {
 	unsigned short totalWidth = 0;
 
@@ -153,7 +161,7 @@ void renderTextLineOnTextTexture(unsigned int *y, Entity *ent, char **ptr, App *
 		dest.w = ent->ui->font->glyphWidths[(**ptr)-FONT_GLYPH_MIN];
 		if(!countOnly)
 			SDL_RenderCopy(
-				app->renderer,
+				renderer,
 				ent->ui->font->glyphs[(**ptr)-FONT_GLYPH_MIN],
 				NULL,
 				&dest
@@ -181,15 +189,15 @@ void renderTextLineOnTextTexture(unsigned int *y, Entity *ent, char **ptr, App *
 	}
 }
 
-void renderTextOnTextTexture(Entity *ent, App *app, char *text)
+void renderTextOnTextTexture(Entity *ent, char *text)
 {
-	SDL_SetRenderTarget(app->renderer, ent->ui->textTexture);
-	SDL_SetRenderDrawColor(app->renderer, 0, 0, 0, 0);
-	SDL_RenderClear(app->renderer);
+	SDL_SetRenderTarget(renderer, ent->ui->textTexture);
+	SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0);
+	SDL_RenderClear(renderer);
 
 	if(text == NULL || strlen(text) < 1)
 	{
-		SDL_SetRenderTarget(app->renderer, NULL);
+		SDL_SetRenderTarget(renderer, NULL);
 		return;
 	}
 	
@@ -200,7 +208,7 @@ void renderTextOnTextTexture(Entity *ent, App *app, char *text)
 
 	while((*ptr) != '\0')
 	{
-		renderTextLineOnTextTexture(&y, ent, &ptr, app, 1);	
+		renderTextLineOnTextTexture(&y, ent, &ptr, 1);	
 		if(*ptr == '\0') break;
 		y += ent->ui->font->height;
 		ptr++;
@@ -225,12 +233,12 @@ void renderTextOnTextTexture(Entity *ent, App *app, char *text)
 
 	while((*ptr) != '\0')
 	{
-		renderTextLineOnTextTexture(&y, ent, &ptr, app, 0);	
+		renderTextLineOnTextTexture(&y, ent, &ptr, 0);	
 		if(*ptr == '\0') break;
 		y += ent->ui->font->height;
 		ptr++;
 	}
 
-	SDL_SetRenderTarget(app->renderer, NULL);
+	SDL_SetRenderTarget(renderer, NULL);
 
 }

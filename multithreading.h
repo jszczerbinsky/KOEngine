@@ -3,12 +3,9 @@
 
 #include <pthread.h>
 
-#define LOCK()    pthread_mutex_lock(&mainLock)
-#define UNLOCK()  pthread_mutex_unlock(&mainLock)
+#define LOCK()    pthread_mutex_lock(&MainLock)
+#define UNLOCK()  pthread_mutex_unlock(&MainLock)
 
-extern pthread_mutex_t mainLock;
-
-void initMultithreading();
-void freeMultithreading();
+extern pthread_mutex_t MainLock;
 
 #endif

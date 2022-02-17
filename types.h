@@ -10,15 +10,14 @@
 #define FONT_GLYPH_MIN 20
 #define FONT_GLYPH_MAX 128
 
-#define NETWORK_MAX_DATAGRAM 1024
-
 typedef SDL_Texture Texture;
 typedef SDL_Color   Color;
+typedef SDL_Rect    Rect;
 
 typedef struct {
   Texture *glyphs             [FONT_GLYPH_MAX-FONT_GLYPH_MIN];
-  unsigned short glyphWidths  [FONT_GLYPH_MAX-FONT_GLYPH_MIN];
-  unsigned short height;
+  unsigned int glyphWidths  [FONT_GLYPH_MAX-FONT_GLYPH_MIN];
+  unsigned int height;
 } Font;
 
 typedef struct {
@@ -27,19 +26,12 @@ typedef struct {
 } Vector2D;
 
 typedef struct {
-  SDL_Window *window;
-  SDL_Renderer *renderer;
-  unsigned short resX;
-  unsigned short resY;
-} App;
-
-typedef struct {
   Vector2D *vertices;
-  unsigned short verticesCount;
+  unsigned int verticesCount;
 } Collider;
 
 typedef struct {
-  unsigned char texturesCount;
+  unsigned int texturesCount;
   SDL_Texture **textures;
   float speed;
 } Animation;
@@ -58,15 +50,15 @@ typedef struct
   Texture *textTexture;
   SDL_Color debugColor;
   Font *font;
-  unsigned char flags;
+  unsigned int flags;
 } UIParameters;
 
-typedef unsigned short NetworkID;
+typedef unsigned int NetworkID;
 
 typedef struct Entity_{
   NetworkID networkID;
 
-  unsigned char layer;
+  unsigned int layer;
 
   UIParameters *ui;
 
@@ -78,8 +70,8 @@ typedef struct Entity_{
   Vector2D localPosition;
   float localRotation;
 
-  unsigned short width;
-  unsigned short height;
+  unsigned int width;
+  unsigned int height;
   
   SDL_Texture *actualTexture;
   SDL_Texture *defaultTexture;
@@ -99,7 +91,7 @@ typedef struct Entity_{
 
   void (*freeExtension)(void *extension);
 
-  int extensionType;
+  unsigned int extensionType;
   void *extension;
 } Entity;
 
@@ -113,34 +105,5 @@ typedef struct NetworkClient_
   struct NetworkClient_ *next;
   struct NetworkClient_ *prev;
 } NetworkClient;
-
-typedef unsigned char NetworkFlags;
-
-typedef unsigned char NetworkDatagram[NETWORK_MAX_DATAGRAM];
-
-typedef struct 
-{
-  char *address;
-  int port;
-
-  void (*onConnectionAttempt)(int *accept, struct sockaddr *addr);
-  void (*onConnection)(NetworkClient *c);
-  void (*onDisconnection)(NetworkClient *c);
-  void (*onData)(NetworkClient *c, unsigned char *data, ssize_t size);
-  void (*clientLoopCall)(NetworkClient *c);
-  float clientTimeoutTime; 
-} NetworkHostSettings;
-
-typedef struct
-{
-  char *serverAddress;
-  int serverPort;
-
-  void (*onConnection)(int status);
-  void (*onDisconnection)(int status);
-  void (*onData)(unsigned char * data, ssize_t size);
-
-  float timeoutTime; 
-} NetworkClientSettings;
 
 #endif

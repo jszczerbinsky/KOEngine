@@ -17,7 +17,18 @@
 #include "debug.h"
 #include "multithreading.h"
 
+#define WINDOW_NORMAL 0
+#define WINDOW_NO_BORDERS SDL_WINDOW_FULLSCREEN_DESKTOP
+#define WINDOW_FULLSCREEN SDL_WINDOW_FULLSCREEN
+
+struct Resolution
+{
+  unsigned int width;
+  unsigned int height;
+};
+
 extern float Delay;
+extern struct Resolution WindowResolution;
 
 void KOEngineInit(
   char *windowName, 
@@ -26,9 +37,8 @@ void KOEngineInit(
 );
 void KOEngineExit();
 
-void SetResolution(unsigned short width, unsigned short height);
-void SetBackground(uint8_t r, uint8_t g, uint8_t b);
-
-App * getAppInfo();
+void SetResolution(unsigned int width, unsigned int height);
+void SetWindowMode(unsigned int mode);
+void SetBackground(Color *c);
 
 #endif

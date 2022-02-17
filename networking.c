@@ -21,14 +21,19 @@ void *networkSettingsPtr = NULL;
 pthread_t sockThread;
 int exitThread = 0;
 
-void sendDatagram(NetworkDatagram *datagram, ssize_t dataLength, struct sockaddr *addr, socklen_t addrlen)
+bool SocketWorking()
+{
+  return (udpSocket != -1);
+}
+
+void sendDatagram(unsigned char *datagram, ssize_t dataLength, struct sockaddr *addr, socklen_t addrlen)
 {
   sendto(udpSocket, datagram, dataLength+1, 0, addr, addrlen);
 }
 
 void killSocket()
 {
-  if(SOCKET_WORKING())
+  if(SocketWorking())
   {
     shutdown(udpSocket, SHUT_RDWR);
     close(udpSocket);
