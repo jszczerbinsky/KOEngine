@@ -17,7 +17,7 @@ struct EntitySpawnSettings
   unsigned int      layer;
 };
 
-Entity *SpawnEntity(struct EntitySpawnSettings *s);
+Entity *SpawnEntity(const struct EntitySpawnSettings *s);
 void KillEntity(Entity *entity);
 
 Vector2D GetPosition(Entity *ent);

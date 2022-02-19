@@ -30,7 +30,7 @@ void CloseFont(Font *font)
 	free(font);
 }
 
-Entity *CreateUIObject(struct EntitySpawnSettings *s, struct UISpawnSettings *uis)
+Entity *CreateUIObject(const struct EntitySpawnSettings *s, const struct UISpawnSettings *uis)
 {
 	Entity *ent = SpawnEntity(s);
 

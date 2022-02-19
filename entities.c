@@ -145,7 +145,7 @@ void addEntity(Entity *ent, unsigned int layer)
 
 }
 
-Entity *SpawnEntity(struct EntitySpawnSettings *s)
+Entity *SpawnEntity(const struct EntitySpawnSettings *s)
 {
 	Entity *ent = malloc(sizeof(Entity));
 

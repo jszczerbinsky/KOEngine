@@ -87,7 +87,7 @@ bool checkCollision(Entity *ent1, Entity *ent2)
 	return true;
 }
 
-void RectCollider(Collider *col, struct RectColliderSettings *s)
+void RectCollider(Collider *col, const struct RectColliderSettings *s)
 {
 	col->verticesCount = 4;
 	col->vertices = malloc(4*sizeof(Vector2D));
@@ -102,7 +102,7 @@ void RectCollider(Collider *col, struct RectColliderSettings *s)
 	col->vertices[3].y = s->centerY - s->height	/2;
 }
 
-void RegularCollider(Collider *col, struct RegularColliderSettings *s)
+void RegularCollider(Collider *col, const struct RegularColliderSettings *s)
 {
 	col->verticesCount = s->edges;
 	col->vertices = malloc(s->edges*sizeof(Vector2D));

@@ -23,8 +23,8 @@ struct RegularColliderSettings
   unsigned int edges;
 };
 
-void NullCollider     ( Collider *col                                    );
-void RectCollider     ( Collider *col, struct RectColliderSettings *s    );
-void RegularCollider  ( Collider *col, struct RegularColliderSettings *s );
+void NullCollider     ( Collider *col                                          );
+void RectCollider     ( Collider *col, const struct RectColliderSettings *s    );
+void RegularCollider  ( Collider *col, const struct RegularColliderSettings *s );
 
 #endif

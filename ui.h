@@ -27,7 +27,7 @@ struct UISpawnSettings
 Font *LoadFont(char *path, int size, SDL_Color color);
 void CloseFont(Font *font);
 
-Entity *CreateUIObject(struct EntitySpawnSettings *s, struct UISpawnSettings *uis);
+Entity *CreateUIObject(const struct EntitySpawnSettings *s, const struct UISpawnSettings *uis);
 void SetUIText(Entity *ent, char *text);
 
 #endif
