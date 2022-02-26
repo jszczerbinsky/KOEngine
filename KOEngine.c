@@ -1,4 +1,5 @@
 #include <SDL2/SDL.h>
+#include <SDL2/SDL_mixer.h>
 #include <time.h>
 
 #include "KOEngine.h"
@@ -20,6 +21,10 @@ extern void updateClients();
 
 extern void initMultithreading();
 extern void freeMultithreading();
+
+extern void initSound();
+extern Music *lastMusic;
+extern int musicEnded;
 
 SDL_Window   *window;
 SDL_Renderer *renderer;
@@ -56,7 +61,7 @@ void SetBackground(Color *c)
 	memcpy(&windowBg, c, sizeof(Color));
 }
 
-void initApp(char * windowName)
+void initApp(char * windowName, unsigned int audioChannels)
 {
 	window = NULL;
 	renderer = NULL;
@@ -64,7 +69,7 @@ void initApp(char * windowName)
   int rendererFlags = SDL_RENDERER_ACCELERATED; 
   int windowFlags = 0;
 
-  if (SDL_Init(SDL_INIT_VIDEO) < 0)
+  if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) < 0)
 	{
 		Log("ERROR, can't initialize SDL: %s", SDL_GetError());
 		exit(1);
@@ -93,6 +98,13 @@ void initApp(char * windowName)
 		Log("ERROR, failed to create renderer: %s", SDL_GetError());
 		exit(1);
 	}
+
+	if(Mix_OpenAudio(MIX_DEFAULT_FREQUENCY, MIX_DEFAULT_FORMAT, 2, 1024) < 0)
+	{
+		Log("ERROR, can't initialize SDL_mixer: %s", Mix_GetError());
+		exit(1);
+	}
+	Mix_AllocateChannels(audioChannels);
 }
 
 void frameInit()
@@ -137,12 +149,12 @@ void getInput()
 	}
 }
 
-void KOEngineInit(char *windowName, void (*onStartPtr)(), void (*loopCallPtr)())
+void KOEngineInit(const struct KOEngineSettings *s)
 {
 	Log("Initializing");
 	srand((unsigned int)time(NULL));
 
-	initApp(windowName);
+	initApp(s->windowName, s->audioChannels);
 	
 	if(TTF_Init() == -1)
 	{
@@ -154,9 +166,10 @@ void KOEngineInit(char *windowName, void (*onStartPtr)(), void (*loopCallPtr)())
 
 	initMultithreading();
 	initEntities();
+	initSound();
 
 	Log("Done, starting game");
-	(*onStartPtr)();
+	(*s->onStartPtr)();
 
 	while (1)
 	{
@@ -171,7 +184,14 @@ void KOEngineInit(char *windowName, void (*onStartPtr)(), void (*loopCallPtr)())
 
 		LOCK();
 
-		(*loopCallPtr)();
+		if(musicEnded)
+		{
+			if(s->onMusicEndPtr)
+				(*s->onMusicEndPtr)(lastMusic);
+			musicEnded = 0;
+		}
+
+		(*s->loopCallPtr)();
 		updateEntities();
 
 		if(NetworkRole == ROLE_HOST && SocketWorking())
@@ -189,6 +209,7 @@ void KOEngineExit()
 	Log("Closing");
 	freeEntities();
 	freeMultithreading();
+	Mix_CloseAudio();
 	SDL_DestroyRenderer(renderer);
   SDL_DestroyWindow(window);
   SDL_Quit();

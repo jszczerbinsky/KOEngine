@@ -3,6 +3,7 @@
 
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_ttf.h>
+#include <SDL2/SDL_mixer.h>
 #include <stdint.h>
 #include <stdbool.h>
 #include <sys/socket.h>
@@ -13,12 +14,18 @@
 typedef SDL_Texture Texture;
 typedef SDL_Color   Color;
 typedef SDL_Rect    Rect;
+typedef Mix_Music   Music;
 
 typedef struct {
   Texture *glyphs             [FONT_GLYPH_MAX-FONT_GLYPH_MIN];
   unsigned int glyphWidths  [FONT_GLYPH_MAX-FONT_GLYPH_MIN];
   unsigned int height;
 } Font;
+
+typedef struct {
+  int channel;
+  Mix_Chunk *chunk;
+} SoundEffect;
 
 typedef struct {
   float x;

@@ -2,7 +2,6 @@
 #define KO_UI_H
 
 #include "entities.h"
-#include "ui.h"
 
 #define UI_PARAMETERS_FLAGS_HORIZONTAL_ALIGN_MASK 0b00000011
 #define UI_PARAMETERS_FLAGS_VERTICAL_ALIGN_MASK   0b00001100

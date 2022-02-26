@@ -15,6 +15,9 @@
 #include "networking.h"
 #include "debug.h"
 #include "multithreading.h"
+#include "audio.h"
+#include "uiControls/button.h"
+#include "uiControls/progressBar.h"
 
 #define WINDOW_NORMAL 0
 #define WINDOW_NO_BORDERS SDL_WINDOW_FULLSCREEN_DESKTOP
@@ -26,14 +29,19 @@ struct Resolution
   unsigned int height;
 };
 
+struct KOEngineSettings
+{
+  char *windowName;
+  void (*onStartPtr)();
+  void (*loopCallPtr)();
+  void (*onMusicEndPtr)(Music *music);
+  unsigned int audioChannels;
+};
+
 extern float Delay;
 extern struct Resolution WindowResolution;
 
-void KOEngineInit(
-  char *windowName, 
-  void (*onStartPtr)(), 
-  void (*loopCallPtr)()
-);
+void KOEngineInit(const struct KOEngineSettings *s);
 void KOEngineExit();
 
 void SetResolution(unsigned int width, unsigned int height);
