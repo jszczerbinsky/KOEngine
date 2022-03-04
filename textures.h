@@ -4,7 +4,8 @@
 #include <SDL2/SDL.h>
 #include "KOEngine.h"
 
-SDL_Texture * LoadTexture       (const char * path);
-SDL_Texture * CreateColorTexture(unsigned char r, unsigned char g, unsigned char b, unsigned char a);
+Texture* LoadTexture       (const char * path);
+Texture* CreateColorTexture(unsigned char r, unsigned char g, unsigned char b, unsigned char a);
+void FreeTexture(Texture *tex);
 
 #endif

@@ -86,10 +86,10 @@ void renderEntity(Entity *e, Vector2D pos, Vector2D camPos)
 	dest.h = e->height;
 
 	if(
-			(dest.x < WindowResolution.width) &&
+			(dest.x < (int)WindowResolution.width) &&
 			(dest.x + dest.w > 0) &&
-			(dest.y < WindowResolution.height) &&
-			(dest.x + dest.h > 0)
+			(dest.y < (int)WindowResolution.height) &&
+			(dest.y + dest.h > 0)
 	)
 	{
 

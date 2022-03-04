@@ -3,7 +3,7 @@
 
 extern SDL_Renderer *renderer;
 
-SDL_Texture * LoadTexture(const char * path)
+Texture* LoadTexture(const char * path)
 {
 	SDL_Surface * surf = SDL_LoadBMP(path);
 
@@ -20,7 +20,7 @@ SDL_Texture * LoadTexture(const char * path)
 	return texture;
 }
 
-SDL_Texture * CreateColorTexture(unsigned char r, unsigned char g, unsigned char b, unsigned char a)
+Texture* CreateColorTexture(unsigned char r, unsigned char g, unsigned char b, unsigned char a)
 {
 	SDL_Texture * texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, 1,1);
 
@@ -30,4 +30,9 @@ SDL_Texture * CreateColorTexture(unsigned char r, unsigned char g, unsigned char
 	SDL_SetRenderTarget(renderer, NULL);
 
 	return texture;
+}
+
+void FreeTexture(Texture *tex)
+{
+	SDL_DestroyTexture(tex);
 }
