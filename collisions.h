@@ -11,16 +11,16 @@ struct RectColliderSettings
 {
   int centerX;
   int centerY;
-  unsigned int width;
-  unsigned int height;
+  int width;
+  int height;
 };
 
 struct RegularColliderSettings
 {
   int centerX;
   int centerY;
-  unsigned int radius;
-  unsigned int edges;
+  int radius;
+  int edges;
 };
 
 void NullCollider     ( Collider *col                                          );

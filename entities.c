@@ -103,10 +103,15 @@ void Move(Entity *ent, float x, float y)
 		return;
 	}
 
-	if(CheckAnyCollision(ent)) return;
-
 	ent->localPosition.x += x;
 	ent->localPosition.y += y;
+
+	if(CheckAnyCollision(ent)) 
+	{
+		ent->localPosition.x -= x;
+		ent->localPosition.y -= y;
+		return;
+	}
 }
 
 void MoveLocal(Entity *ent, float x, float y)
