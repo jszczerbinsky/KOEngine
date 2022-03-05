@@ -34,7 +34,8 @@ void FreeSoundEffect(SoundEffect *effect)
 
 void SoundPlay(SoundEffect *effect)
 {
-	Mix_PlayChannel(effect->channel, effect->chunk, 0);
+	if(effect)
+		Mix_PlayChannel(effect->channel, effect->chunk, 0);
 }
 
 void HaltChannel(int channel)
@@ -59,6 +60,8 @@ void FreeMusic(Music *music)
 
 void MusicPlay(Music *music, const struct PlayMusicSettings *s)
 {
+	if(!music) return;
+
 	lastMusic = music;
 	if(Mix_FadeInMusicPos(music, 1, s->fadeInTime, s->startPos) < 0)
 		Log("WARNING, can't play music: %s", Mix_GetError());
