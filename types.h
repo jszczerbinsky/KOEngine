@@ -92,7 +92,7 @@ typedef struct Entity_{
 
   Collider collider;  
   int colliderMode;
-  void (*onCollision)(struct Entity_ *ent, struct Entity_ *ent2);
+  void (*onCollision)(struct Entity_ *ent, struct Entity_ *ent2, int *ignoreCollision);
 
   void (*loopCall)(struct Entity_ *ent);
 

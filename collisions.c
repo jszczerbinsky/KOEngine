@@ -73,15 +73,19 @@ bool checkCollision(Entity *ent1, Entity *ent2)
 		}
 	}
 
+	int ignoreCollision = 0;
+
 	if(ent1->onCollision)
-		(*ent1->onCollision)(ent1, ent2);
+		(*ent1->onCollision)(ent1, ent2, &ignoreCollision);
 
 	if(ent2->onCollision)
-		(*ent2->onCollision)(ent2, ent1);
+		(*ent2->onCollision)(ent2, ent1, &ignoreCollision);
 
-
-	if(ent1->colliderMode == COLLIDER_MODE_EVENTS_ONLY ||
-		ent2->colliderMode == COLLIDER_MODE_EVENTS_ONLY)
+	if(
+			ent1->colliderMode == COLLIDER_MODE_EVENTS_ONLY ||
+			ent2->colliderMode == COLLIDER_MODE_EVENTS_ONLY ||
+			ignoreCollision
+		)
 		return false;
 
 	return true;
