@@ -19,6 +19,7 @@ struct EntitySpawnSettings
 
 Entity *SpawnEntity(const struct EntitySpawnSettings *s);
 void KillEntity(Entity *entity);
+void KillAllEntities();
 
 Vector2D GetPosition(Entity *ent);
 float    GetRotation(Entity *ent);

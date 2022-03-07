@@ -287,7 +287,7 @@ void updateEntities()
 	}
 }
 
-void freeEntities()
+void KillAllEntities()
 {
 	for(unsigned char layer = 0; layer < LAYER_MAX; layer++)
 		while(entList[layer] != NULL)

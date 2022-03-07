@@ -14,7 +14,6 @@ extern void setButtonUp  (MouseButton btn);
 extern void setButtonDown(MouseButton btn);
 
 extern void initEntities();
-extern void freeEntities();
 extern void updateEntities();
 
 extern void updateClients();
@@ -207,7 +206,7 @@ void KOEngineInit(const struct KOEngineSettings *s)
 void KOEngineExit()
 {
 	Log("Closing");
-	freeEntities();
+	KillAllEntities();
 	freeMultithreading();
 	Mix_CloseAudio();
 	SDL_DestroyRenderer(renderer);
