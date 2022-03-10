@@ -96,7 +96,7 @@ typedef struct Entity_{
 
   void (*loopCall)(struct Entity_ *ent);
 
-  void (*freeExtension)(void *extension);
+  void (*freeExtension)(void *extension, int killingAll);
 
   unsigned int extensionType;
   void *extension;

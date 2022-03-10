@@ -10,6 +10,8 @@ extern void renderEntity  (Entity *e, Vector2D pos, Vector2D camPos);
 Entity *entList[LAYER_MAX];
 NetworkID nextNetworkID = 1;
 
+int killingAllEntities = 0;
+
 void initEntities()
 {
 	for(unsigned char layer = 0; layer < LAYER_MAX; layer++)
@@ -208,7 +210,7 @@ void KillEntity(Entity *entity)
 	if(entity->extension)
 	{
 		if(entity->freeExtension)
-			(*entity->freeExtension)(entity->extension);
+			(*entity->freeExtension)(entity->extension, killingAllEntities);
 		free(entity->extension);
 	}
 
@@ -289,9 +291,13 @@ void updateEntities()
 
 void KillAllEntities()
 {
+	killingAllEntities = 1;
+
 	for(unsigned char layer = 0; layer < LAYER_MAX; layer++)
 		while(entList[layer] != NULL)
 			KillEntity(entList[layer]);
+
+	killingAllEntities = 0;
 }
 
 void Play(Entity *ent, Animation *anim, SDL_RendererFlip flip)
