@@ -1,8 +1,18 @@
 #ifndef KO_NETWORKING_H
 #define KO_NETWORKING_H
 
-#include <pthread.h>
-#include <sys/socket.h>
+#ifdef _WIN32
+  #ifndef _WIN32_WINNT
+    #define _WIN32_WINNT 0x0501  /* Windows XP. */
+  #endif
+  #include <winsock2.h>
+  #include <Ws2tcpip.h>
+#else
+  #include <sys/socket.h>
+  #include <arpa/inet.h>
+  #include <unistd.h>
+  #include <netinet/in.h>
+#endif
 #include "types.h"
 
 #define NETWORK_DATAGRAM_MAX_BYTES 1024

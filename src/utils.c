@@ -1,7 +1,8 @@
 #ifndef KO_UTILS_H
 #define KO_UTILS_H
 
-#include "KOEngine.h"
+#include <math.h>
+#include "KOE.h"
 #include "utils.h"
 
 Vector2D PositionScreenToWorld(Vector2D pos)

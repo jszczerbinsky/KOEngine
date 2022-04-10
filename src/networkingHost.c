@@ -1,26 +1,23 @@
 #include <stdio.h>
-#include <sys/socket.h>
 #include <sys/types.h>
-#include <netinet/in.h>
 #include <string.h>
 #include <stdlib.h>
-#include <pthread.h>
-#include <arpa/inet.h>
 #include <signal.h>
-#include <unistd.h>
+#include <time.h>
 #include "networking.h"
-#include "KOEngine.h"
+#include "KOE.h"
 #include "types.h"
 #include "log.h"
 
 #define HOST_SETTINGS ((struct NetworkHostSettings*)networkSettingsPtr)
 
 extern void sendDatagram(unsigned char *datagram, ssize_t dataLength, struct sockaddr *addr, socklen_t addrlen);
+extern void initSocket();
 extern void killSocket();
 
 extern int            udpSocket;
 extern void          *networkSettingsPtr;
-extern pthread_t      sockThread;
+extern SDL_Thread    *sockThread;
 extern int            exitThread;
 extern socklen_t      addrlen;
 
@@ -55,7 +52,7 @@ void removeClient(NetworkClient *c)
   free(c);
 }
 
-void *hostTask(void *threadid)
+static int hostTask(void *threadid)
 {
   Log("Starting server");
 
@@ -67,7 +64,7 @@ void *hostTask(void *threadid)
     struct sockaddr_storage addr;
 
     bytes = recvfrom(udpSocket, buff, NETWORK_DATAGRAM_MAX_BYTES, 0, (struct sockaddr *)&addr, &addrlen);
-    if(exitThread) killSocket();
+    if(exitThread) {killSocket(); return 0;}
 
     time_t now = time(NULL);
 
@@ -162,6 +159,7 @@ void *hostTask(void *threadid)
 
 void HostServer(struct NetworkHostSettings *settings)
 {
+  initSocket();
   networkSettingsPtr = settings;
 
   NetworkRole = ROLE_HOST;
@@ -174,21 +172,29 @@ void HostServer(struct NetworkHostSettings *settings)
     return;
   }
 
-	struct sockaddr_in hostAddr;
+  struct sockaddr_in hostAddr;
 
-	hostAddr.sin_family = AF_INET;
+  hostAddr.sin_family = AF_INET;
   hostAddr.sin_port = htons(HOST_SETTINGS->port);
   hostAddr.sin_addr.s_addr = inet_addr(HOST_SETTINGS->address);
   memset(hostAddr.sin_zero, '\0', sizeof(hostAddr.sin_zero));
 
   addrlen = sizeof(hostAddr);
 
-  struct timeval tv;
-  tv.tv_sec = 1;
-  tv.tv_usec = 0;
-  setsockopt(udpSocket, SOL_SOCKET, SO_RCVTIMEO, &tv, sizeof(tv));
-  int t= 1;
-  setsockopt(udpSocket,SOL_SOCKET,SO_REUSEADDR,&t,sizeof(int));
+  int time= 1;
+  #ifdef _WIN32
+    const int i = 1000;
+	setsockopt(udpSocket, SOL_SOCKET, SO_RCVTIMEO, (const char *)&i, sizeof(const int));
+	setsockopt(udpSocket,SOL_SOCKET,SO_REUSEADDR,(const char *)&time,sizeof(int));
+  #else
+    struct timeval tv;
+    tv.tv_sec = 1;
+    tv.tv_usec = 0;
+    setsockopt(udpSocket, SOL_SOCKET, SO_RCVTIMEO, &tv, sizeof(tv));
+	setsockopt(udpSocket,SOL_SOCKET,SO_REUSEADDR,&time,sizeof(int));
+  #endif
+  
+  
 
  	if(bind(udpSocket, (struct sockaddr *)&hostAddr, sizeof(hostAddr)) == -1)
   {
@@ -196,8 +202,8 @@ void HostServer(struct NetworkHostSettings *settings)
     return;
   }
 
-  int i = 1;
-  pthread_create(&sockThread, NULL, hostTask, (void*)&i);
+  int t = 1;
+  sockThread = SDL_CreateThread(&hostTask, NULL, (void*)&t);
 }
 
 void updateClients()
@@ -215,7 +221,7 @@ void updateClients()
 void CloseServer()
 {
   exitThread = 1;
-  pthread_join(sockThread, NULL);
+  SDL_WaitThread(sockThread, NULL);
   while(ClientList)
     removeClient(ClientList);
 }

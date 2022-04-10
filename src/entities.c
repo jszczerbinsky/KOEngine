@@ -1,7 +1,8 @@
 #include <stdarg.h>
+#include <math.h>
 
 #include "entities.h"
-#include "KOEngine.h"
+#include "KOE.h"
 
 extern bool checkCollision(Entity *ent1, Entity *ent2);
 

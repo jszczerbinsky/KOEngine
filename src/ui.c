@@ -1,4 +1,4 @@
-#include "KOEngine.h"
+#include "KOE.h"
 
 extern void renderTextOnTextTexture(Entity *ent, char *text);
 

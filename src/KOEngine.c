@@ -2,7 +2,7 @@
 #include <SDL2/SDL_mixer.h>
 #include <time.h>
 
-#include "KOEngine.h"
+#include "KOE.h"
 #include "log.h"
 
 extern void setKeyUp  (SDL_KeyboardEvent *event);

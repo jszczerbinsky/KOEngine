@@ -1,5 +1,13 @@
+#include <math.h>
 #include "collisions.h"
 #include "types.h"
+
+#ifdef _WIN32
+  #include <float.h>
+  #define INFINITY_f FLT_MAX
+#else
+  #define INFINITY_f INFINITY
+#endif
 
 void NullCollider(Collider *col)
 {
@@ -34,8 +42,8 @@ bool checkCollision(Entity *ent1, Entity *ent2)
 			normal.x = p2.y - p1.y;
 			normal.y = p1.x - p2.x;
 
-			float minA = INFINITY;
-			float maxA = -INFINITY;
+			float minA = INFINITY_f;
+			float maxA = -INFINITY_f;
 
 			for(int j = 0; j < ent1->collider.verticesCount; j++)
 			{
@@ -51,8 +59,8 @@ bool checkCollision(Entity *ent1, Entity *ent2)
 						maxA = projected;
 			}
 
-			float minB = INFINITY;
-			float maxB = -INFINITY;
+			float minB = INFINITY_f;
+			float maxB = -INFINITY_f;
 
 			for(int j = 0; j < ent2->collider.verticesCount; j++)
 			{

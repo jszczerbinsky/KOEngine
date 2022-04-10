@@ -1,17 +1,18 @@
 #include <string.h>
-#include <arpa/inet.h>
+#include <time.h>
 #include "networking.h"
 #include "log.h"
-#include "KOEngine.h"
+#include "KOE.h"
 
 #define CLIENT_SETTINGS ((struct NetworkClientSettings*)networkSettingsPtr)
 
 extern void sendDatagram(unsigned char *datagram, ssize_t dataLength, struct sockaddr *addr, socklen_t addrlen);
 extern void killSocket();
+extern void initSocket();
 
 extern int            udpSocket;
 extern void          *networkSettingsPtr;
-extern pthread_t      sockThread;
+extern SDL_Thread    *sockThread;
 extern int            exitThread;
 extern socklen_t      addrlen;
 
@@ -22,7 +23,7 @@ void SendToServer(unsigned char *datagram, ssize_t dataLength)
   sendDatagram(datagram, dataLength, (struct sockaddr *)&serverAddr, addrlen);
 }
 
-void *clientTask(void *threadid)
+static int clientTask(void *threadid)
 {
   Log("Connecting to server");
 
@@ -38,8 +39,8 @@ void *clientTask(void *threadid)
   {
     (*DATAGRAM_FLAGS(buff)) = 0;
 
-    bytes = recvfrom(udpSocket, &buff, 1, 0, NULL, NULL);
-    if(exitThread) killSocket();
+    bytes = recvfrom(udpSocket, buff, NETWORK_DATAGRAM_MAX_BYTES, 0, NULL, NULL);
+    if(exitThread) {killSocket(); return 0;}
 
     if(bytes > 0)
     {
@@ -65,7 +66,7 @@ void *clientTask(void *threadid)
   if(CLIENT_SETTINGS->onConnection)
     (*CLIENT_SETTINGS->onConnection)(status);
 
-  if(status != NETWORK_STATUS_SUCCESS) killSocket();
+  if(status != NETWORK_STATUS_SUCCESS) {killSocket(); return 0;}
   (*DATAGRAM_FLAGS(buff)) = 0;
 
   int timeoutSeconds = 0;
@@ -76,7 +77,7 @@ void *clientTask(void *threadid)
     {
       if(CLIENT_SETTINGS->onDisconnection)
         (*CLIENT_SETTINGS->onDisconnection)(NETWORK_STATUS_SUCCESS);
-      killSocket();
+      {killSocket(); return 0;}
     }
 
     if(bytes > 0)
@@ -91,7 +92,7 @@ void *clientTask(void *threadid)
 
         if(CLIENT_SETTINGS->onDisconnection)
           (*CLIENT_SETTINGS->onDisconnection)(NETWORK_STATUS_KICKED);
-        killSocket();
+        {killSocket(); return 0;}
       }
 
       ssize_t dataSize = bytes-1;
@@ -117,13 +118,14 @@ void *clientTask(void *threadid)
 
         UNLOCK();
 
-        killSocket();
+        {killSocket(); return 0;}
       }
     }
   }
 }
 void Connect(struct NetworkClientSettings *settings)
 {
+  initSocket();
   networkSettingsPtr = settings;
 
   NetworkRole = ROLE_CLIENT;
@@ -142,13 +144,18 @@ void Connect(struct NetworkClientSettings *settings)
 
   addrlen = sizeof(serverAddr);
 
-  struct timeval tv;
-  tv.tv_sec = 1;
-  tv.tv_usec = 0;
-  setsockopt(udpSocket, SOL_SOCKET, SO_RCVTIMEO, &tv, sizeof(tv));
+  #ifdef _WIN32
+    const int time = 1000;
+	setsockopt(udpSocket, SOL_SOCKET, SO_RCVTIMEO, (const char *)&time, sizeof(const int));
+  #else
+    struct timeval tv;
+    tv.tv_sec = 1;
+    tv.tv_usec = 0;
+    setsockopt(udpSocket, SOL_SOCKET, SO_RCVTIMEO, &tv, sizeof(tv));
+  #endif
 
-  int i = 1;
-  pthread_create(&sockThread, NULL, clientTask, (void*)&i);
+  int t = 1;
+  sockThread = SDL_CreateThread(&clientTask, NULL, (void*)&t);
 }
 
 void Disconnect()
@@ -158,5 +165,5 @@ void Disconnect()
   SendToServer(buff, 0);
 
   exitThread = 1;
-  pthread_join(sockThread, NULL);
+  SDL_WaitThread(sockThread, NULL);
 }

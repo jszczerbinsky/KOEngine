@@ -1,4 +1,6 @@
 #include <stdarg.h>
+#include <math.h>
+#include <stdio.h>
 #include "animations.h"
 #include "textures.h"
 

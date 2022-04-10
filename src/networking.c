@@ -1,13 +1,8 @@
 #include <stdio.h>
-#include <sys/socket.h>
 #include <sys/types.h>
-#include <netinet/in.h>
 #include <string.h>
 #include <stdlib.h>
-#include <pthread.h>
-#include <arpa/inet.h>
 #include <signal.h>
-#include <unistd.h>
 #include "networking.h"
 #include "types.h"
 #include "log.h"
@@ -18,12 +13,16 @@ socklen_t addrlen;
 
 void *networkSettingsPtr = NULL;
 
-pthread_t sockThread;
+SDL_Thread *sockThread;
 int exitThread = 0;
 
 bool SocketWorking()
 {
-  return (udpSocket != -1);
+  #ifdef _WIN32
+	return (udpSocket != -1);
+  #else
+	return (udpSocket == INVALID_SOCKET);
+  #endif
 }
 
 void sendDatagram(unsigned char *datagram, ssize_t dataLength, struct sockaddr *addr, socklen_t addrlen)
@@ -31,15 +30,34 @@ void sendDatagram(unsigned char *datagram, ssize_t dataLength, struct sockaddr *
   sendto(udpSocket, datagram, dataLength+1, 0, addr, addrlen);
 }
 
+void initSocket()
+{
+  #ifdef _WIN32
+    WSADATA wsa_data;
+    WSAStartup(MAKEWORD(1,1), &wsa_data);
+  #endif
+}
+
 void killSocket()
 {
   if(SocketWorking())
   {
-    shutdown(udpSocket, SHUT_RDWR);
-    close(udpSocket);
+	#ifdef _WIN32
+	  shutdown(udpSocket, SD_BOTH);
+	#else
+      shutdown(udpSocket, SHUT_RDWR);
+	  close(udpSocket);
+    #endif
   }
-  udpSocket = -1;
+  #ifdef _WiN32
+	udpSocket = INVALID_SOCKET;
+  #else
+    udpSocket = -1;
+  #endif
 
   exitThread = 0;
-  pthread_exit(NULL);
+  
+  #ifdef _WIN32
+    WSACleanup();
+  #endif
 }

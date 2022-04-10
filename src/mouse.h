@@ -2,7 +2,7 @@
 #define KO_MOUSE_H
 
 #include <SDL2/SDL.h>
-#include "KOEngine.h"
+#include "KOE.h"
 
 Vector2D GetMousePosition     ();
 Vector2D GetMouseWorldPosition();

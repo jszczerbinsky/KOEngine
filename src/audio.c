@@ -1,3 +1,4 @@
+#include <SDL2/SDL_mixer.h>
 #include "audio.h"
 #include "log.h"
 

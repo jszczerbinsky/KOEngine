@@ -1,5 +1,5 @@
 #include "entities.h"
-#include "KOEngine.h"
+#include "KOE.h"
 #include "debug.h"
 #include "log.h"
 #include "ui.h"
