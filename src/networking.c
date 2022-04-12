@@ -19,7 +19,7 @@ int exitThread = 0;
 bool SocketWorking()
 {
   #ifdef _WIN32
-	return (udpSocket == INVALID_SOCKET);
+	return (udpSocket != INVALID_SOCKET);
   #else
 	return (udpSocket != -1);
   #endif

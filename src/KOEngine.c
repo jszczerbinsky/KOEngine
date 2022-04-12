@@ -74,6 +74,7 @@ void initApp(char * windowName, unsigned int audioChannels)
 		exit(1);
 	}
 
+Log("Initializing window");
   window = SDL_CreateWindow(
       windowName, 
       SDL_WINDOWPOS_UNDEFINED, 
@@ -172,7 +173,7 @@ void KOEngineInit(const struct KOEngineSettings *s)
 
 	while (1)
 	{
-    frameInit();
+		frameInit();
 		getInput();
 		int ticks = SDL_GetTicks();
 		Delay = (ticks-timer)/1000.0f;
