@@ -9,6 +9,9 @@
   #define INFINITY_f INFINITY
 #endif
 
+Vector2D getNonRotatedPosition(Entity *ent);
+void inheritPosition(Entity *ent, Vector2D *posPtr);
+
 void NullCollider(Collider *col)
 {
 	col->verticesCount = 0;
@@ -32,11 +35,16 @@ bool checkCollision(Entity *ent1, Entity *ent2)
 
 			Vector2D p1 = col.vertices[i1];
 			Vector2D p2 = col.vertices[i2];
+			
+			Vector2D nonRotatedParentPos = getNonRotatedPosition(ent);
 
-			p1.x += ent->localPosition.x;
-			p1.y += ent->localPosition.y;
-			p2.x += ent->localPosition.x;
-			p2.y += ent->localPosition.y;
+			p1.x += nonRotatedParentPos.x;
+			p1.y += nonRotatedParentPos.y;
+			p2.x += nonRotatedParentPos.x;
+			p2.y += nonRotatedParentPos.y;
+			
+			inheritPosition(ent, &p1);
+			inheritPosition(ent, &p2);
 
 			Vector2D normal;
 			normal.x = p2.y - p1.y;
@@ -48,8 +56,13 @@ bool checkCollision(Entity *ent1, Entity *ent2)
 			for(int j = 0; j < ent1->collider.verticesCount; j++)
 			{
 				Vector2D p = ent1->collider.vertices[j];
-				p.x += ent1->localPosition.x;
-				p.y += ent1->localPosition.y;
+				
+				Vector2D nonRotatedParentPos1 = getNonRotatedPosition(ent1);
+				
+				p.x += nonRotatedParentPos1.x;
+				p.y += nonRotatedParentPos1.y;
+				
+				inheritPosition(ent1, &p);
 
 				float projected = normal.x * p.x + normal.y * p.y;
 
@@ -65,8 +78,13 @@ bool checkCollision(Entity *ent1, Entity *ent2)
 			for(int j = 0; j < ent2->collider.verticesCount; j++)
 			{
 				Vector2D p = ent2->collider.vertices[j];
-				p.x += ent2->localPosition.x;
-				p.y += ent2->localPosition.y;
+				
+				Vector2D nonRotatedParentPos2 = getNonRotatedPosition(ent2);
+				
+				p.x += nonRotatedParentPos2.x;
+				p.y += nonRotatedParentPos2.y;
+				
+				inheritPosition(ent2, &p);
 
 				float projected = normal.x * p.x + normal.y * p.y;
 
