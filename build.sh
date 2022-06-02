@@ -11,5 +11,5 @@ cp LICENSE build/share/licenses/libKOEngine/LICENSE
 cd src
 cp *.h ../build/include/KOE
 cp uiControls/*.h ../build/include/KOE/uiControls
-gcc -shared *.c -fPIC -Wall -lSDL2main -lSDL2 -lSDL2_ttf -lSDL2_mixer -o ../build/lib/libKOEngine.so
+gcc -shared uiControls/*.c *.c -fPIC -Wall -lSDL2main -lSDL2 -lSDL2_ttf -lSDL2_mixer -o ../build/lib/libKOEngine.so
 cd ..
