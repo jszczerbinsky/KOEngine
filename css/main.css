@@ -1,0 +1,65 @@
+@import url('https://fonts.googleapis.com/css2?family=Bangers&display=swap');
+
+body
+{
+	background-color: #333;
+	color: #AAA;
+}
+pre code
+{
+	width: 500px;
+	border-radius: 4px;
+}
+section
+{
+	border: 2px solid #222;
+	border-radius: 4px;
+	padding: 20px;
+	background-color: #444;
+}
+.topbarSection
+{
+	margin-bottom: 16px;
+	height: 30px;
+}
+.topbarSection p
+{
+	margin: 0px;
+	margin-right: 20px;
+	line-height: 30px;
+	float: right;
+}
+.topbarSection header
+{
+	line-height: 30px;
+	font-size: 24px;
+	font-weight: bold;
+	float: left;
+	margin-left: 20px;
+	font-family: 'Bangers', cursive;
+}
+.sidebarSection
+{
+	float: right;
+	width: 316px;
+}
+.sidebarSection ul li
+{
+	list-style: none;
+}
+.sidebarSection ul li a
+{
+	text-decoration: none;
+	color: #AAA;
+	font-size: 19px;
+	line-height: 35px;
+}
+.sidebarSection ul li a:hover
+{
+	color: #AAF;
+}
+.mainSection
+{
+	width: calc(100% - 420px);
+	float: left;
+}
