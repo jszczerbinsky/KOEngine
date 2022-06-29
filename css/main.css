@@ -1,13 +1,19 @@
 @import url('https://fonts.googleapis.com/css2?family=Bangers&display=swap');
-
+@import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;700&display=swap');
 body
 {
-	background-color: #333;
 	color: #AAA;
+	background-color: #333;
+	font-family: 'Open Sans', sans-serif;
+}
+h3
+{
+	font-weight: bold;
 }
 pre code
 {
-	width: 500px;
+	font-size: 17px;
+	width: 90%;
 	border-radius: 4px;
 }
 section
@@ -47,14 +53,18 @@ section
 {
 	list-style: none;
 }
-.sidebarSection ul li a
+li a
 {
+	cursor: pointer;
 	text-decoration: none;
 	color: #AAA;
+}
+.sidebarSection ul li a
+{
 	font-size: 19px;
 	line-height: 35px;
 }
-.sidebarSection ul li a:hover
+a:hover
 {
 	color: #AAF;
 }
