@@ -11,7 +11,7 @@ bool ButtonDown (MouseButton btn);
 bool ButtonUp   (MouseButton btn);
 bool ButtonPress(MouseButton btn);
 
-bool MouseOver  (Entity *ent);
-bool MouseClick (Entity *ent, MouseButton btn);
+bool MouseOver  (GameObject *ent);
+bool MouseClick (GameObject *ent, MouseButton btn);
 
 #endif

@@ -67,7 +67,7 @@ Vector2D GetMouseWorldPosition()
 	return mousePos;
 }
 
-bool MouseOver(Entity *ent)
+bool MouseOver(GameObject *ent)
 {
 	Vector2D mousePos;
 
@@ -85,7 +85,7 @@ bool MouseOver(Entity *ent)
 		mousePos.y < entPos.y + ent->height/2;
 }
 
-bool MouseClick(Entity *ent, MouseButton btn)
+bool MouseClick(GameObject *ent, MouseButton btn)
 {
 	return MouseOver(ent) && ButtonPress(btn);
 }

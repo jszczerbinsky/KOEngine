@@ -14,7 +14,7 @@ struct ProgressBarSettings
 	unsigned int labelLayer;
 };
 
-Entity *CreateProgressBar(const struct EntitySpawnSettings *ess, const struct UISpawnSettings *uis, const struct ProgressBarSettings *pbs);
-void SetProgressBarValue(Entity *e, float val);
+GameObject *CreateProgressBar(const struct GameObjectSpawnSettings *ess, const struct UISpawnSettings *uis, const struct ProgressBarSettings *pbs);
+void SetProgressBarValue(GameObject *e, float val);
 
 #endif

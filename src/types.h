@@ -72,17 +72,17 @@ typedef struct
 
 typedef unsigned int NetworkID;
 
-typedef struct Entity_{
+typedef struct GameObject_{
   NetworkID networkID;
 
   unsigned int layer;
 
   UIParameters *ui;
 
-  struct Entity_ *next;
-  struct Entity_ *prev;
+  struct GameObject_ *next;
+  struct GameObject_ *prev;
 
-  struct Entity_ *parent;
+  struct GameObject_ *parent;
 
   Vector2D localPosition;
   float localRotation;
@@ -96,21 +96,21 @@ typedef struct Entity_{
   Animation *actualAnimation;
   float animationCounter;
 
-  void (*onAnimationEnd)(struct Entity_ *ent, Animation* anim);
+  void (*onAnimationEnd)(struct GameObject_ *obj, Animation* anim);
 
   SDL_RendererFlip flip;
 
   Collider collider;  
   int colliderMode;
-  void (*onCollision)(struct Entity_ *ent, struct Entity_ *ent2, int *ignoreCollision);
+  void (*onCollision)(struct GameObject_ *obj, struct GameObject_ *obj2, int *ignoreCollision);
 
-  void (*loopCall)(struct Entity_ *ent);
+  void (*loopCall)(struct GameObject_ *obj);
 
   void (*freeExtension)(void *extension, int killingAll);
 
   unsigned int extensionType;
   void *extension;
-} Entity;
+} GameObject;
 
 typedef struct NetworkClient_
 {

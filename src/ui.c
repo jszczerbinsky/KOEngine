@@ -1,6 +1,6 @@
 #include "KOE.h"
 
-extern void renderTextOnTextTexture(Entity *ent, char *text);
+extern void renderTextOnTextTexture(GameObject *ent, char *text);
 
 extern SDL_Renderer *renderer;
 
@@ -30,9 +30,9 @@ void CloseFont(Font *font)
 	free(font);
 }
 
-Entity *CreateUIObject(const struct EntitySpawnSettings *s, const struct UISpawnSettings *uis)
+GameObject *CreateUIObject(const struct GameObjectSpawnSettings *s, const struct UISpawnSettings *uis)
 {
-	Entity *ent = SpawnEntity(s);
+	GameObject *ent = SpawnGameObject(s);
 
 	ent->ui = calloc(1, sizeof(UIParameters));
 
@@ -60,7 +60,7 @@ Entity *CreateUIObject(const struct EntitySpawnSettings *s, const struct UISpawn
 	return ent;
 }
 
-void SetUIText(Entity *ent, char *text)
+void SetUIText(GameObject *ent, char *text)
 {
 	if(!ent->ui || !ent->ui->textTexture)
 	{

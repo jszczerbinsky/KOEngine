@@ -1,7 +1,7 @@
 #ifndef KO_UI_H
 #define KO_UI_H
 
-#include "entities.h"
+#include "gameObjects.h"
 
 #define UI_PARAMETERS_FLAGS_HORIZONTAL_ALIGN_MASK 0b00000011
 #define UI_PARAMETERS_FLAGS_VERTICAL_ALIGN_MASK   0b00001100
@@ -26,7 +26,7 @@ struct UISpawnSettings
 Font *LoadFont(char *path, int size, SDL_Color color);
 void CloseFont(Font *font);
 
-Entity *CreateUIObject(const struct EntitySpawnSettings *s, const struct UISpawnSettings *uis);
-void SetUIText(Entity *ent, char *text);
+GameObject *CreateUIObject(const struct GameObjectSpawnSettings *s, const struct UISpawnSettings *uis);
+void SetUIText(GameObject *ent, char *text);
 
 #endif

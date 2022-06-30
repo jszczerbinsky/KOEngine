@@ -2,7 +2,7 @@
 #define KO_KOENGINE_H
 
 #include "collisions.h"
-#include "entities.h"
+#include "gameObjects.h"
 #include "keyboard.h"
 #include "types.h"
 #include "camera.h"

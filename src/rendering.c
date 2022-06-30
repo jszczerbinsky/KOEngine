@@ -1,4 +1,4 @@
-#include "entities.h"
+#include "gameObjects.h"
 #include "KOE.h"
 #include "debug.h"
 #include "log.h"
@@ -6,10 +6,10 @@
 
 extern SDL_Renderer *renderer;
 
-extern void inheritPosition(Entity *ent, Vector2D *posPtr);
-extern Vector2D getNonRotatedPosition(Entity *ent);
+extern void inheritPosition(GameObject *ent, Vector2D *posPtr);
+extern Vector2D getNonRotatedPosition(GameObject *ent);
 
-void renderCollider(Entity *e, Vector2D camPos)
+void renderCollider(GameObject *e, Vector2D camPos)
 {
 	if(e->collider.verticesCount == 0) return;
 
@@ -38,7 +38,7 @@ void renderCollider(Entity *e, Vector2D camPos)
 	);
 }
 
-void renderUIBorders(Entity *e)
+void renderUIBorders(GameObject *e)
 {
 	SDL_SetRenderDrawColor(
 		renderer, 
@@ -57,7 +57,7 @@ void renderUIBorders(Entity *e)
 }
 
 
-void renderText(Entity *ent)
+void renderText(GameObject *ent)
 {
 	SDL_Rect dest;
 
@@ -69,7 +69,7 @@ void renderText(Entity *ent)
 	SDL_RenderCopy(renderer, ent->ui->textTexture, NULL, &dest);
 }
 
-void renderEntity(Entity *e, Vector2D pos, Vector2D camPos)
+void renderGameObject(GameObject *e, Vector2D pos, Vector2D camPos)
 {
 	SDL_Rect dest;
 
@@ -106,7 +106,7 @@ void renderEntity(Entity *e, Vector2D pos, Vector2D camPos)
 	}
 }
 
-void renderTextLineOnTextTexture(unsigned int *y, Entity *ent, char **ptr, int countOnly)
+void renderTextLineOnTextTexture(unsigned int *y, GameObject *ent, char **ptr, int countOnly)
 {
 	unsigned short totalWidth = 0;
 
@@ -189,7 +189,7 @@ void renderTextLineOnTextTexture(unsigned int *y, Entity *ent, char **ptr, int c
 	}
 }
 
-void renderTextOnTextTexture(Entity *ent, char *text)
+void renderTextOnTextTexture(GameObject *ent, char *text)
 {
 	SDL_SetRenderTarget(renderer, ent->ui->textTexture);
 	SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0);

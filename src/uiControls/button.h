@@ -10,9 +10,9 @@ struct ButtonSettings
 	Texture *texHover;
 	Texture *texClick;
 	void *clickParam;
-	void (*clickAction)(Entity *btn, void *p);
+	void (*clickAction)(GameObject *btn, void *p);
 };
 
-Entity *CreateButton(const struct EntitySpawnSettings *ess, const struct UISpawnSettings *uis, const struct ButtonSettings *s);
+GameObject *CreateButton(const struct GameObjectSpawnSettings *ess, const struct UISpawnSettings *uis, const struct ButtonSettings *s);
 
 #endif

@@ -9,8 +9,8 @@
   #define INFINITY_f INFINITY
 #endif
 
-Vector2D getNonRotatedPosition(Entity *ent);
-void inheritPosition(Entity *ent, Vector2D *posPtr);
+Vector2D getNonRotatedPosition(GameObject *ent);
+void inheritPosition(GameObject *ent, Vector2D *posPtr);
 
 void NullCollider(Collider *col)
 {
@@ -18,16 +18,16 @@ void NullCollider(Collider *col)
 	col->vertices = NULL;
 }
 
-bool checkCollision(Entity *ent1, Entity *ent2)
+bool checkCollision(GameObject *ent1, GameObject *ent2)
 {
 	if(ent1->collider.verticesCount == 0 || ent2->collider.verticesCount == 0) return false;
 
-	Entity *ents[] = { ent1, ent2 };
+	GameObject *ents[] = { ent1, ent2 };
 
 	for (int x = 0; x < 2; x++)
 	{
 		Collider col = ents[x]->collider;
-		Entity *ent = ents[x];
+		GameObject *ent = ents[x];
 
 		for (int i1 = 0; i1 < col.verticesCount; i1++)
 		{ 

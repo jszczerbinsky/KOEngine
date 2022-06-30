@@ -13,8 +13,8 @@ extern void resetButtons ();
 extern void setButtonUp  (MouseButton btn);
 extern void setButtonDown(MouseButton btn);
 
-extern void initEntities();
-extern void updateEntities();
+extern void initGameObjects();
+extern void updateGameObjects();
 
 extern void updateClients();
 
@@ -165,7 +165,7 @@ void KOEngineInit(const struct KOEngineSettings *s)
 	unsigned int timer = SDL_GetTicks();
 
 	initMultithreading();
-	initEntities();
+	initGameObjects();
 	initSound();
 
 	Log("Done, starting game");
@@ -192,7 +192,7 @@ void KOEngineInit(const struct KOEngineSettings *s)
 		}
 
 		(*s->loopCallPtr)();
-		updateEntities();
+		updateGameObjects();
 
 		if(NetworkRole == ROLE_HOST && SocketWorking())
 			updateClients();
@@ -207,7 +207,7 @@ void KOEngineInit(const struct KOEngineSettings *s)
 void KOEngineExit()
 {
 	Log("Closing");
-	KillAllEntities();
+	KillAllGameObjects();
 	freeMultithreading();
 	Mix_CloseAudio();
 	SDL_DestroyRenderer(renderer);

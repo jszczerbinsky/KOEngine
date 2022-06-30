@@ -3,8 +3,8 @@
 
 struct ProgressBarInstance
 {
-	Entity *progress;
-	Entity *bg;
+	GameObject *progress;
+	GameObject *bg;
 	float value;
 	float minValue;
 	float maxValue;
@@ -16,12 +16,12 @@ void freeProgressBarInstance(void *pbHookPtr, int killingAll)
 	
 	if(!killingAll)
 	{
-		KillEntity(pbHook->bg);
-		KillEntity(pbHook->progress);
+		KillGameObject(pbHook->bg);
+		KillGameObject(pbHook->progress);
 	}
 }
 
-void SetProgressBarValue(Entity *e, float val)
+void SetProgressBarValue(GameObject *e, float val)
 {
 	struct ProgressBarInstance *pbHook = (struct ProgressBarInstance *) e->extension;
 
@@ -34,19 +34,19 @@ void SetProgressBarValue(Entity *e, float val)
 	pbHook->progress->localPosition.x = pbHook->progress->width/2 - (float)e->width/2;
 };
 
-Entity *CreateProgressBar(const struct EntitySpawnSettings *ess, const struct UISpawnSettings *uis, const struct ProgressBarSettings *pbs)
+GameObject *CreateProgressBar(const struct GameObjectSpawnSettings *ess, const struct UISpawnSettings *uis, const struct ProgressBarSettings *pbs)
 {
 	const struct UISpawnSettings noTextUis = {
 		.font = NULL,
 		.flags = 0
 	};
 
-	struct EntitySpawnSettings labelEss;
-	memcpy(&labelEss, ess, sizeof(struct EntitySpawnSettings));
+	struct GameObjectSpawnSettings labelEss;
+	memcpy(&labelEss, ess, sizeof(struct GameObjectSpawnSettings));
 	labelEss.texture = NULL;
 	labelEss.layer = pbs->labelLayer;
 
-	Entity *e = CreateUIObject(&labelEss, uis);
+	GameObject *e = CreateUIObject(&labelEss, uis);
 
 	e->freeExtension = &freeProgressBarInstance;
 	e->extension = malloc(sizeof(struct ProgressBarInstance));
@@ -57,16 +57,16 @@ Entity *CreateProgressBar(const struct EntitySpawnSettings *ess, const struct UI
 	pbHook->maxValue = pbs->maxValue;
 	pbHook->value = 0;
 
-	struct EntitySpawnSettings bgEss;
-	memcpy(&bgEss, ess, sizeof(struct EntitySpawnSettings));
+	struct GameObjectSpawnSettings bgEss;
+	memcpy(&bgEss, ess, sizeof(struct GameObjectSpawnSettings));
 	bgEss.x = 0;
 	bgEss.y = 0;
 
 	pbHook->bg = CreateUIObject(&bgEss, &noTextUis);
 	pbHook->bg->parent = e;
 
-	struct EntitySpawnSettings pEss;
-	memcpy(&pEss, ess, sizeof(struct EntitySpawnSettings));
+	struct GameObjectSpawnSettings pEss;
+	memcpy(&pEss, ess, sizeof(struct GameObjectSpawnSettings));
 	pEss.width = 0;
 	pEss.x = 0;
 	pEss.y = 0;
