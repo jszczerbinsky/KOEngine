@@ -90,10 +90,10 @@ typedef struct GameObject_{
   unsigned int width;
   unsigned int height;
   
-  SDL_Texture *actualTexture;
+  SDL_Texture *currentTexture;
   SDL_Texture *defaultTexture;
 
-  Animation *actualAnimation;
+  Animation *currentAnimation;
   float animationCounter;
 
   void (*onAnimationEnd)(struct GameObject_ *obj, Animation* anim);

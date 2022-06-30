@@ -16,14 +16,14 @@ void ButtonLoopCall(GameObject *e)
 	if(MouseOver(e))
 	{
 		if(ButtonDown(MouseLeft))
-			e->actualTexture = btnHook->texClick;
+			e->currentTexture = btnHook->texClick;
 		else if(ButtonUp(MouseLeft) && btnHook->clickAction)
 			(*btnHook->clickAction)(e, btnHook->clickParam);
 		else
-			e->actualTexture = btnHook->texHover;
+			e->currentTexture = btnHook->texHover;
 	}
 	else 
-		e->actualTexture = e->defaultTexture;
+		e->currentTexture = e->defaultTexture;
 }
 
 GameObject *CreateButton(const struct GameObjectSpawnSettings *ess, const struct UISpawnSettings *uis, const struct ButtonSettings *s)

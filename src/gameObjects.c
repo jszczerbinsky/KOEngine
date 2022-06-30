@@ -167,9 +167,9 @@ GameObject *SpawnGameObject(const struct GameObjectSpawnSettings *s)
 	obj->width 									= s->width;
 	obj->height 								= s->height;
 	obj->defaultTexture 				= s->texture;
-	obj->actualTexture 					= s->texture;
+	obj->currentTexture 					= s->texture;
 	obj->animationCounter 			= 0;
-	obj->actualAnimation 				= NULL;
+	obj->currentAnimation 				= NULL;
 	obj->onAnimationEnd 				= NULL;
 	obj->colliderMode 					= COLLIDER_MODE_NORMAL;
 	obj->onCollision 						= NULL;
@@ -269,17 +269,17 @@ void updateGameObjects()
 
 			Vector2D pos = GetPosition(e);
 
-			if(e->actualAnimation != NULL)
+			if(e->currentAnimation != NULL)
 			{
-				e->animationCounter += Delay * e->actualAnimation->speed;
+				e->animationCounter += Delay * e->currentAnimation->speed;
 				bool ended = false;
-				while(e->animationCounter >= e->actualAnimation->texturesCount)
+				while(e->animationCounter >= e->currentAnimation->texturesCount)
 				{
-					e->animationCounter -= e->actualAnimation->texturesCount;
+					e->animationCounter -= e->currentAnimation->texturesCount;
 					ended = true;
 				}
-				if(ended && e->onAnimationEnd != NULL) (*e->onAnimationEnd)(e, e->actualAnimation);
-				if(e->actualAnimation) e->actualTexture = e->actualAnimation->textures[(int)(e->animationCounter)];
+				if(ended && e->onAnimationEnd != NULL) (*e->onAnimationEnd)(e, e->currentAnimation);
+				if(e->currentAnimation) e->currentTexture = e->currentAnimation->textures[(int)(e->animationCounter)];
 			}
 
 			renderGameObject(e, pos, camPos);
@@ -303,14 +303,14 @@ void KillAllGameObjects()
 
 void Play(GameObject *obj, Animation *anim, SDL_RendererFlip flip)
 {
-	obj->actualAnimation = anim;
+	obj->currentAnimation = anim;
 	obj->animationCounter = 0;
 	obj->flip = flip;
 }
 
 void StopPlaying(GameObject *obj)
 {
-	obj->actualAnimation = NULL;
+	obj->currentAnimation = NULL;
 	obj->flip = SDL_FLIP_NONE;
-	obj->actualTexture = obj->defaultTexture;
+	obj->currentTexture = obj->defaultTexture;
 }

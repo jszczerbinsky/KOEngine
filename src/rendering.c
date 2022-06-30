@@ -96,7 +96,7 @@ void renderGameObject(GameObject *e, Vector2D pos, Vector2D camPos)
 		if((DebugFlags & DEBUG_FLAG_SHOW_COLLIDERS) == DEBUG_FLAG_SHOW_COLLIDERS)
 			renderCollider(e, camPos);
 
-		SDL_RenderCopyEx(renderer, e->actualTexture, NULL, &dest, GetRotation(e), NULL, e->flip);
+		SDL_RenderCopyEx(renderer, e->currentTexture, NULL, &dest, GetRotation(e), NULL, e->flip);
 		if(e->ui)
 		{
 			renderText(e);
