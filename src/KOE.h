@@ -3,6 +3,7 @@
 
 #include "collisions.h"
 #include "gameObjects.h"
+#include "keys.h"
 #include "keyboard.h"
 #include "types.h"
 #include "camera.h"
