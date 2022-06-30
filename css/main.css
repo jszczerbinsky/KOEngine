@@ -1,5 +1,46 @@
 @import url('https://fonts.googleapis.com/css2?family=Bangers&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;700&display=swap');
+
+@media (max-width: 800px)
+{
+	.topbarSection
+	{
+		text-align: center;
+	}
+	.sidebarSection
+	{
+		margin-bottom: 20px;	
+	}
+}
+@media (min-width: 800px)
+{
+	.topbarSection
+	{
+		height: 30px;
+	}
+	.topbarSection p
+	{
+		float: right;
+		margin: 0px;
+		margin-right: 20px;
+	}
+	.topbarSection header
+	{
+		margin-left: 20px;
+		float: left;
+	}
+	.sidebarSection
+	{
+		float: right;
+		width: 316px;
+	}
+	.mainSection
+	{
+		width: calc(100% - 420px);
+		float: left;
+	}
+}
+
 body
 {
 	color: #AAA;
@@ -26,28 +67,17 @@ section
 .topbarSection
 {
 	margin-bottom: 16px;
-	height: 30px;
 }
 .topbarSection p
 {
-	margin: 0px;
-	margin-right: 20px;
 	line-height: 30px;
-	float: right;
 }
 .topbarSection header
 {
 	line-height: 30px;
 	font-size: 24px;
 	font-weight: bold;
-	float: left;
-	margin-left: 20px;
 	font-family: 'Bangers', cursive;
-}
-.sidebarSection
-{
-	float: right;
-	width: 316px;
 }
 .sidebarSection ul li
 {
@@ -68,8 +98,4 @@ a:hover
 {
 	color: #AAF;
 }
-.mainSection
-{
-	width: calc(100% - 420px);
-	float: left;
-}
+
