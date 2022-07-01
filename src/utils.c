@@ -27,7 +27,14 @@ Vector2D PositionWorldToScreen(Vector2D pos)
 	return pos;
 }
 
-Vector2D Lerp(Vector2D p1, Vector2D p2, float t)
+float Lerp(float f1, float f2, float t)
+{
+	if(t < 0 ) t = 0;
+	else if(t > 1) t = 1;
+	return f1 + (f2 - f1)*t;
+}
+
+Vector2D Lerp2D(Vector2D p1, Vector2D p2, float t)
 {
 	if(t < 0 ) t = 0;
 	else if(t > 1) t = 1;
