@@ -16,7 +16,7 @@ void ButtonLoopCall(GameObject *e)
 
 	if(MouseOver(e))
 	{
-		if(ButtonDown(MouseLeft))
+		if(ButtonDown(MouseLeft) || ButtonDown(MouseRight))
 			e->currentTexture = btnHook->texClick;
 		else if(ButtonUp(MouseLeft) && btnHook->clickAction)
 			(*btnHook->clickAction)(e, btnHook->clickParam);
