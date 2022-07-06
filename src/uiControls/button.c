@@ -7,6 +7,7 @@ struct ButtonInstance
 	Texture *texClick;
 	void *clickParam;
 	void (*clickAction)(GameObject *btn, void *p);
+	void (*rightClickAction)(GameObject *btn, void *p);
 };
 
 void ButtonLoopCall(GameObject *e)
@@ -19,6 +20,8 @@ void ButtonLoopCall(GameObject *e)
 			e->currentTexture = btnHook->texClick;
 		else if(ButtonUp(MouseLeft) && btnHook->clickAction)
 			(*btnHook->clickAction)(e, btnHook->clickParam);
+		else if(ButtonUp(MouseRight) && btnHook->rightClickAction)
+			(*btnHook->rightClickAction)(e, btnHook->clickParam);
 		else
 			e->currentTexture = btnHook->texHover;
 	}
@@ -37,6 +40,7 @@ GameObject *CreateButton(const struct GameObjectSpawnSettings *ess, const struct
 	btnHook->texHover = s->texHover;
 	btnHook->texClick = s->texClick;
 	btnHook->clickAction = s->clickAction;
+	btnHook->rightClickAction = s->rightClickAction;
 	btnHook->clickParam = s->clickParam;
 
 	e->loopCall = &ButtonLoopCall;
