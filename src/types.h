@@ -70,6 +70,13 @@ typedef struct
   unsigned int flags;
 } UIParameters;
 
+typedef struct
+{
+	unsigned int width;
+	unsigned int height;
+	Texture *tex;
+} LightParameters;
+
 typedef unsigned int NetworkID;
 
 typedef struct GameObject_{
@@ -78,6 +85,7 @@ typedef struct GameObject_{
   unsigned int layer;
 
   UIParameters *ui;
+	LightParameters *light;
 
   struct GameObject_ *next;
   struct GameObject_ *prev;

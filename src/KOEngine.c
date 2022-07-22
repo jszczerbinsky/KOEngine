@@ -13,13 +13,17 @@ extern void resetButtons ();
 extern void setButtonUp  (MouseButton btn);
 extern void setButtonDown(MouseButton btn);
 
-extern void initGameObjects();
+extern void initGameObjects(unsigned int layersCount, unsigned int lightL);
+extern void freeGameObjects();
 extern void updateGameObjects();
 
 extern void updateClients();
 
 extern void initMultithreading();
 extern void freeMultithreading();
+
+extern void reloadLightResolution();
+extern void freeLight();
 
 extern void initSound();
 extern Music *lastMusic;
@@ -48,6 +52,8 @@ void SetResolution(unsigned int width, unsigned int height)
 
 	if(window)
 		SDL_SetWindowSize(window, width, height);
+
+	reloadLightResolution();
 }
 
 void SetWindowMode(unsigned int mode)
@@ -165,8 +171,10 @@ void KOEngineInit(const struct KOEngineSettings *s)
 	unsigned int timer = SDL_GetTicks();
 
 	initMultithreading();
-	initGameObjects();
+	initGameObjects(s->layersCount, s->lightLayer);
 	initSound();
+
+	reloadLightResolution();
 
 	Log("Done, starting game");
 	(*s->onStartPtr)();
@@ -208,7 +216,9 @@ void KOEngineExit()
 {
 	Log("Closing");
 	KillAllGameObjects();
+	freeGameObjects();
 	freeMultithreading();
+	freeLight();
 	Mix_CloseAudio();
 	SDL_DestroyRenderer(renderer);
   SDL_DestroyWindow(window);

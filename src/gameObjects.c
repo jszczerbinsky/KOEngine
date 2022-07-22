@@ -7,16 +7,29 @@
 extern bool checkCollision(GameObject *obj1, GameObject *obj2);
 
 extern void renderGameObject  (GameObject *e, Vector2D pos, Vector2D camPos);
+extern void renderLightTint();
 
-GameObject *objList[LAYER_MAX];
+GameObject **objList;
 NetworkID nextNetworkID = 1;
+
+unsigned int layersCount;
+unsigned int lightLayer;
 
 int killingAllGameObjects = 0;
 
-void initGameObjects()
+void initGameObjects(unsigned int layers, unsigned int lightL)
 {
-	for(unsigned char layer = 0; layer < LAYER_MAX; layer++)
+	layersCount = layers;
+	lightLayer = lightL;
+
+	objList = malloc(layers*sizeof(GameObject*));
+	for(unsigned char layer = 0; layer < layersCount; layer++)
 		objList[layer] = NULL;
+}
+
+void freeGameObjects()
+{
+	free(objList);
 }
 
 Vector2D getNonRotatedPosition(GameObject *obj)
@@ -83,7 +96,7 @@ bool CheckAnyCollision(GameObject *obj)
 
 	GameObject *next;
 
-	for(unsigned char layer = 0; layer < LAYER_MAX; layer++)
+	for(unsigned char layer = 0; layer < layersCount; layer++)
 		for(GameObject *e = objList[layer]; e; e = next)
 		{
 			next = e->next;
@@ -160,6 +173,7 @@ GameObject *SpawnGameObject(const struct GameObjectSpawnSettings *s)
 	obj->networkID 							= NO_NETWORK_ID;
 	obj->layer 									= s->layer;
 	obj->ui 										= NULL;
+	obj->light 									= NULL;
 	obj->parent 								= NULL;
 	obj->localPosition.x 				= s->x;
 	obj->localPosition.y 				= s->y;
@@ -197,6 +211,9 @@ void KillGameObject(GameObject *gameObject)
 			SDL_DestroyTexture(gameObject->ui->textTexture);
 		free(gameObject->ui);
 	}
+
+	if(gameObject->light != NULL)
+		free(gameObject->light);
 
 	if(gameObject->prev != NULL)
 		gameObject->prev->next = gameObject->next;
@@ -258,7 +275,7 @@ void updateGameObjects()
 {
 	Vector2D camPos = GetCameraPosition();
 
-	for(unsigned char layer = 0; layer < LAYER_MAX; layer++)
+	for(unsigned char layer = 0; layer < layersCount; layer++)
 	{
 		GameObject *next = objList[layer];
 
@@ -287,6 +304,9 @@ void updateGameObjects()
 			if(e->loopCall != NULL)
 				(*e->loopCall)(e);	
 		}
+
+		if(layer == lightLayer)
+			renderLightTint();
 	}
 }
 
@@ -294,7 +314,7 @@ void KillAllGameObjects()
 {
 	killingAllGameObjects = 1;
 
-	for(unsigned char layer = 0; layer < LAYER_MAX; layer++)
+	for(unsigned char layer = 0; layer < layersCount; layer++)
 		while(objList[layer] != NULL)
 			KillGameObject(objList[layer]);
 

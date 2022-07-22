@@ -3,8 +3,6 @@
 
 #include "types.h"
 
-#define LAYER_MAX 64
-
 #define NO_NETWORK_ID 0
 
 struct GameObjectSpawnSettings

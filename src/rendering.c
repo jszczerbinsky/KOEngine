@@ -6,6 +6,9 @@
 
 extern SDL_Renderer *renderer;
 
+extern SDL_Texture *lightTintTex;
+extern SDL_Color lightTintColor;
+
 extern void inheritPosition(GameObject *ent, Vector2D *posPtr);
 extern Vector2D getNonRotatedPosition(GameObject *ent);
 
@@ -104,6 +107,51 @@ void renderGameObject(GameObject *e, Vector2D pos, Vector2D camPos)
 				renderUIBorders(e);
 		}
 	}
+
+	if(e->light)
+	{
+		SDL_Rect lightDest;
+
+		if(e->ui)
+		{
+			lightDest.x = pos.x - e->light->width/2;
+			lightDest.y = pos.y - e->light->height/2;
+		}else
+		{
+			lightDest.x = pos.x - e->light->width/2 - camPos.x + WindowResolution.width/2;
+			lightDest.y = pos.y - e->light->height/2 - camPos.y + WindowResolution.height/2;
+		}
+		lightDest.w = e->light->width;
+		lightDest.h = e->light->height;
+
+		if(
+				(lightDest.x < (int)WindowResolution.width) &&
+				(lightDest.x + lightDest.w > 0) &&
+				(lightDest.y < (int)WindowResolution.height) &&
+				(lightDest.y + lightDest.h > 0)
+		)
+		{
+			SDL_SetRenderTarget(renderer, lightTintTex);
+			SDL_RenderCopyEx(renderer, e->light->tex, NULL, &lightDest, GetRotation(e), NULL, e->flip);
+			SDL_SetRenderTarget(renderer, NULL);
+		}
+	}
+}
+
+void renderLightTint()
+{
+	SDL_Rect dest = {
+		.x = 0,
+		.y = 0,
+		.w = WindowResolution.width,
+		.h = WindowResolution.height
+	};
+
+	SDL_RenderCopy(renderer, lightTintTex, NULL, &dest);
+	SDL_SetRenderDrawColor(renderer, lightTintColor.r, lightTintColor.g, lightTintColor.b, lightTintColor.a);
+	SDL_SetRenderTarget(renderer, lightTintTex);
+	SDL_RenderClear(renderer);
+	SDL_SetRenderTarget(renderer, NULL);
 }
 
 void renderTextLineOnTextTexture(unsigned int *y, GameObject *ent, char **ptr, int countOnly)
@@ -240,5 +288,4 @@ void renderTextOnTextTexture(GameObject *ent, char *text)
 	}
 
 	SDL_SetRenderTarget(renderer, NULL);
-
 }

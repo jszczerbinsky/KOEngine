@@ -17,6 +17,7 @@
 #include "debug.h"
 #include "multithreading.h"
 #include "audio.h"
+#include "light.h"
 #include "uiControls/button.h"
 #include "uiControls/progressBar.h"
 
@@ -37,6 +38,8 @@ struct KOEngineSettings
   void (*loopCallPtr)();
   void (*onMusicEndPtr)(Music *music);
   unsigned int audioChannels;
+	unsigned int layersCount;
+	unsigned int lightLayer;
 };
 
 extern float Delay;
