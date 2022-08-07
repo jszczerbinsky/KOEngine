@@ -170,6 +170,7 @@ GameObject *SpawnGameObject(const struct GameObjectSpawnSettings *s)
 {
 	GameObject *obj = malloc(sizeof(GameObject));
 
+	obj->active									= 1;
 	obj->networkID 							= NO_NETWORK_ID;
 	obj->layer 									= s->layer;
 	obj->ui 										= NULL;
@@ -284,25 +285,28 @@ void updateGameObjects()
 			GameObject *e = next;
 			next = e->next;
 
-			Vector2D pos = GetPosition(e);
-
-			if(e->currentAnimation != NULL)
+			if(e->active)
 			{
-				e->animationCounter += Delay * e->currentAnimation->speed;
-				bool ended = false;
-				while(e->animationCounter >= e->currentAnimation->texturesCount)
+				Vector2D pos = GetPosition(e);
+
+				if(e->currentAnimation != NULL)
 				{
-					e->animationCounter -= e->currentAnimation->texturesCount;
-					ended = true;
+					e->animationCounter += Delay * e->currentAnimation->speed;
+					bool ended = false;
+					while(e->animationCounter >= e->currentAnimation->texturesCount)
+					{
+						e->animationCounter -= e->currentAnimation->texturesCount;
+						ended = true;
+					}
+					if(ended && e->onAnimationEnd != NULL) (*e->onAnimationEnd)(e, e->currentAnimation);
+					if(e->currentAnimation) e->currentTexture = e->currentAnimation->textures[(int)(e->animationCounter)];
 				}
-				if(ended && e->onAnimationEnd != NULL) (*e->onAnimationEnd)(e, e->currentAnimation);
-				if(e->currentAnimation) e->currentTexture = e->currentAnimation->textures[(int)(e->animationCounter)];
+
+				renderGameObject(e, pos, camPos);
+
+				if(e->loopCall != NULL)
+					(*e->loopCall)(e);	
 			}
-
-			renderGameObject(e, pos, camPos);
-
-			if(e->loopCall != NULL)
-				(*e->loopCall)(e);	
 		}
 
 		if(layer == lightLayer)

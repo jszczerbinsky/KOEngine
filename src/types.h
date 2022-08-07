@@ -80,6 +80,8 @@ typedef struct
 typedef unsigned int NetworkID;
 
 typedef struct GameObject_{
+	int active;
+
   NetworkID networkID;
 
   unsigned int layer;
