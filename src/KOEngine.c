@@ -130,7 +130,7 @@ void getInput()
 	resetButtons();
   SDL_Event event;
 
-	while (SDL_PollEvent(&event))
+	if(SDL_WaitEventTimeout(&event, 1000/60) != 0)
 	{
 		switch (event.type)
 		{
@@ -186,9 +186,6 @@ void KOEngineInit(const struct KOEngineSettings *s)
 		int ticks = SDL_GetTicks();
 		Delay = (ticks-timer)/1000.0f;
 		timer = SDL_GetTicks();	
-		int waitFor = 8-ticks;
-		if(waitFor < 0) waitFor = 0;
-		SDL_Delay(waitFor);
 
 		LOCK();
 
