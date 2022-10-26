@@ -13,18 +13,38 @@ extern SDL_Color lightTintColor;
 extern void inheritPosition(GameObject *ent, Vector2D *posPtr);
 extern Vector2D getNonRotatedPosition(GameObject *ent);
 
-extern SDL_Texture *consoleLineTex;
+extern struct ConsoleLine consoleLines[CONSOLE_LINES_MAX];
 
 void renderConsole()
 {
-	SDL_Rect dest = {
-		.x = 0,
-		.y = 100,
+	const SDL_Rect bgRect = {
+		.x = WindowResolution.width/2 - 400 - CONSOLE_PADDING,
+		.y = WindowResolution.height/2 - 300 - CONSOLE_PADDING,
+		.w = 800 + CONSOLE_PADDING*2,
+		.h = 600 + CONSOLE_PADDING*2
 	};
 
-	SDL_QueryTexture(consoleLineTex, NULL, NULL, &dest.w, &dest.h);
-	
-	SDL_RenderCopy(renderer, consoleLineTex, NULL, &dest);
+	SDL_SetRenderDrawColor(renderer, CONSOLE_BG);
+	SDL_RenderFillRect(renderer, &bgRect);
+
+	int y = bgRect.y+CONSOLE_PADDING+bgRect.h-CONSOLE_PADDING*2;
+
+	for(int i = 0; i < CONSOLE_LINES_MAX; i++)
+	{
+		int w, h;
+		SDL_QueryTexture(consoleLines[i].tex, NULL, NULL, &w, &h);
+		y -= h;
+		if(y < bgRect.y+CONSOLE_PADDING) return;
+
+		SDL_Rect dest = {
+			.x = bgRect.x+CONSOLE_PADDING,
+			.y = y,
+			.w = w,
+			.h = h
+		};
+		
+		SDL_RenderCopy(renderer, consoleLines[i].tex, NULL, &dest);
+	}
 }
 
 void renderCollider(GameObject *e, Vector2D camPos)

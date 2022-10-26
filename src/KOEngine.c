@@ -155,6 +155,9 @@ void getInput()
 						case SDL_SCANCODE_BACKSPACE:
 							consolePutChar(8);
 							break;
+						case SDL_SCANCODE_RETURN:
+							consolePutChar('\n');
+							break;
 						default:
 							keyName = SDL_GetKeyName(event.key.keysym.sym);
 							if(strlen(keyName) == 1)
