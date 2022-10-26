@@ -30,6 +30,7 @@ extern Music *lastMusic;
 extern int musicEnded;
 
 extern void consolePutChar(char c);
+extern void freeConsole();
 
 SDL_Window   *window;
 SDL_Renderer *renderer;
@@ -243,6 +244,7 @@ void KOEngineExit()
 	Log("Closing");
 	KillAllGameObjects();
 	freeGameObjects();
+	freeConsole();
 	freeMultithreading();
 	freeLight();
 	Mix_CloseAudio();

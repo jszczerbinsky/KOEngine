@@ -84,6 +84,13 @@ void InitializeConsole(const char *path)
 	updateConsoleLinesTex();
 }
 
+void freeConsole()
+{
+	for(int i = 0; i < CONSOLE_LINES_MAX; i++)
+		if(consoleLines[i].tex)
+			SDL_DestroyTexture(consoleLines[i].tex);
+}
+
 void OpenConsole()
 {
 	ConsoleActive = 1;
