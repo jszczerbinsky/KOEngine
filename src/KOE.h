@@ -20,6 +20,7 @@
 #include "light.h"
 #include "uiControls/button.h"
 #include "uiControls/progressBar.h"
+#include "console.h"
 
 #define WINDOW_NORMAL 0
 #define WINDOW_NO_BORDERS SDL_WINDOW_FULLSCREEN_DESKTOP

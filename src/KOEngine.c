@@ -29,6 +29,8 @@ extern void initSound();
 extern Music *lastMusic;
 extern int musicEnded;
 
+extern void consolePutChar(char c);
+
 SDL_Window   *window;
 SDL_Renderer *renderer;
 
@@ -138,10 +140,34 @@ void getInput()
 				KOEngineExit();	
 				break;
 			case SDL_KEYDOWN:
-				setKeyDown(&event.key);
+				if(ConsoleActive)
+				{
+					const char *keyName;
+					switch(event.key.keysym.scancode)
+					{
+						case SDL_SCANCODE_ESCAPE:
+						case SDL_SCANCODE_GRAVE:
+							CloseConsole();
+							break;
+						case SDL_SCANCODE_SPACE:
+							consolePutChar(' ');
+							break;
+						case SDL_SCANCODE_BACKSPACE:
+							consolePutChar(8);
+							break;
+						default:
+							keyName = SDL_GetKeyName(event.key.keysym.sym);
+							if(strlen(keyName) == 1)
+								consolePutChar(keyName[0]);
+							break;
+					}
+				}
+				else
+					setKeyDown(&event.key);
 				break;
 			case SDL_KEYUP:
-				setKeyUp(&event.key);
+				if(!ConsoleActive)
+					setKeyUp(&event.key);
 				break;
 			case SDL_MOUSEBUTTONDOWN:
 				setButtonDown(event.button.button);

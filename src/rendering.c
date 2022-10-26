@@ -3,6 +3,7 @@
 #include "debug.h"
 #include "log.h"
 #include "ui.h"
+#include "console.h"
 
 extern SDL_Renderer *renderer;
 
@@ -11,6 +12,20 @@ extern SDL_Color lightTintColor;
 
 extern void inheritPosition(GameObject *ent, Vector2D *posPtr);
 extern Vector2D getNonRotatedPosition(GameObject *ent);
+
+extern SDL_Texture *consoleLineTex;
+
+void renderConsole()
+{
+	SDL_Rect dest = {
+		.x = 0,
+		.y = 100,
+	};
+
+	SDL_QueryTexture(consoleLineTex, NULL, NULL, &dest.w, &dest.h);
+	
+	SDL_RenderCopy(renderer, consoleLineTex, NULL, &dest);
+}
 
 void renderCollider(GameObject *e, Vector2D camPos)
 {

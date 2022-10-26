@@ -3,11 +3,14 @@
 
 #include "gameObjects.h"
 #include "KOE.h"
+#include "console.h"
 
 extern bool checkCollision(GameObject *obj1, GameObject *obj2);
 
 extern void renderGameObject  (GameObject *e, Vector2D pos, Vector2D camPos);
 extern void renderLightTint();
+
+void renderConsole();
 
 GameObject **objList;
 NetworkID nextNetworkID = 1;
@@ -157,13 +160,51 @@ void MoveTo(GameObject *obj, Vector2D dest, float speed)
 
 void addGameObject(GameObject *obj, unsigned int layer)
 {
+	obj->prev = NULL;
 	obj->next = objList[layer];
 
 	if(objList[layer] != NULL)
 		objList[layer]->prev = obj;
 
 	objList[layer] = obj;
+}
 
+void removeGameObject(GameObject *gameObject)
+{
+	if(gameObject->prev != NULL)
+		gameObject->prev->next = gameObject->next;
+	else
+		objList[gameObject->layer] = gameObject->next;
+	if(gameObject->next != NULL)
+		gameObject->next->prev = gameObject->prev;
+}
+
+void SortLayer(unsigned int layer, int (*compare)(GameObject*, GameObject*))
+{
+	GameObject *sorted = NULL;
+
+	while(objList[layer])
+	{
+		GameObject *smallest = objList[layer];
+		GameObject *current = objList[layer];
+
+		while(current->next)
+		{
+			current = current->next;
+			
+			if((*compare)(smallest, current))
+				smallest = current;
+		}
+
+		removeGameObject(smallest);
+		smallest->prev = NULL;
+		if(sorted)
+			sorted->prev = smallest;
+		smallest->next = sorted;
+		sorted = smallest;
+	}
+
+	objList[layer] = sorted;
 }
 
 GameObject *SpawnGameObject(const struct GameObjectSpawnSettings *s)
@@ -216,13 +257,8 @@ void KillGameObject(GameObject *gameObject)
 	if(gameObject->light != NULL)
 		free(gameObject->light);
 
-	if(gameObject->prev != NULL)
-		gameObject->prev->next = gameObject->next;
-	else
-		objList[gameObject->layer] = gameObject->next;
-	if(gameObject->next != NULL)
-		gameObject->next->prev = gameObject->prev;
-
+	removeGameObject(gameObject);
+	
 	if(gameObject->collider.vertices != NULL)
 		free(gameObject->collider.vertices);
 
@@ -312,6 +348,8 @@ void updateGameObjects()
 		if(layer == lightLayer)
 			renderLightTint();
 	}
+	if(ConsoleActive)
+		renderConsole();
 }
 
 void KillAllGameObjects()
