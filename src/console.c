@@ -6,7 +6,28 @@ TTF_Font *consoleFont = NULL;
 
 struct ConsoleLine consoleLines[CONSOLE_LINES_MAX];
 
+struct ConsoleHook
+{
+	const char *name;
+	void (*procedure)();
+	int *value;	
+	struct ConsoleHook *next;
+};
+
+struct ConsoleHook *consoleHooks;
+
 int ConsoleActive = 0;
+
+void AddConsoleHook(const char *name, void (*proc)(), int *val)
+{
+	struct ConsoleHook *hook = malloc(sizeof(struct ConsoleHook));
+	hook->next = consoleHooks;
+	consoleHooks = hook;
+
+	hook->name = name;
+	hook->procedure = proc;
+	hook->value = val;
+}
 
 void updateConsoleLinesTex()
 {
@@ -45,6 +66,73 @@ void updateConsoleLinesTex()
 	}
 }
 
+void AddConsoleLine(const char *line)
+{
+	for(int i = CONSOLE_LINES_MAX-1; i > 0; i--)
+		strcpy(consoleLines[i].str, consoleLines[i-1].str);
+	strcpy(consoleLines[1].str, line);
+	updateConsoleLinesTex();
+}
+
+void consolePrintHelp()
+{
+	struct ConsoleHook *currentHook = consoleHooks;
+
+	while(currentHook)
+	{
+		const char *typeStr = "????";
+		if(currentHook->procedure)
+			typeStr = "Proc";
+		else if(currentHook->value)
+			typeStr = "Int ";
+
+		char str[CONSOLE_LINE_LENGTH];
+		snprintf(str, CONSOLE_LINE_LENGTH, "  %s    %s", typeStr, currentHook->name);
+		AddConsoleLine(str);
+		currentHook = currentHook->next;
+	}
+}
+
+void consoleExecute(const char *cmd)
+{
+	int wordLength = 0;
+	const char *ptr = cmd;
+	while(*ptr != '\0' && *ptr != ' ')
+	{
+		ptr++;
+		wordLength++;
+	}
+
+	struct ConsoleHook *currentHook = consoleHooks;
+
+	while(currentHook)
+	{
+		if(strncmp(currentHook->name, cmd, wordLength) == 0)
+		{
+			if(currentHook->procedure)
+				(*currentHook->procedure)();
+			else if(currentHook->value)
+			{
+				if(*ptr == ' ')
+				{
+					ptr++;
+					*(currentHook->value) = atoi(ptr);
+				}
+				else
+				{
+					char str[CONSOLE_LINE_LENGTH];
+					snprintf(str, CONSOLE_LINE_LENGTH, "%s = %d", currentHook->name, *(currentHook->value));	
+					AddConsoleLine(str);
+				}
+			}
+			return;	
+		}
+		currentHook = currentHook->next;
+	}
+	AddConsoleLine("Command not found");
+}
+
+
 void consolePutChar(char c)
 {
 	int length = strlen(consoleLines[0].str);
@@ -59,6 +147,7 @@ void consolePutChar(char c)
 			for(int i = CONSOLE_LINES_MAX-1; i > 0; i--)
 				strcpy(consoleLines[i].str, consoleLines[i-1].str);
 			consoleLines[0].str[0] = '\0';
+			consoleExecute(consoleLines[1].str);
 			break;
 		default:
 			if(length+1 < CONSOLE_LINE_LENGTH)
@@ -82,6 +171,8 @@ void InitializeConsole(const char *path)
 	}
 
 	updateConsoleLinesTex();
+	AddConsoleHook("HELP", &consolePrintHelp, NULL);
+	AddConsoleHook("DEBUG-FLAGS", NULL, &DebugFlags);
 }
 
 void freeConsole()
