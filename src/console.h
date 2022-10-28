@@ -23,6 +23,8 @@ struct ConsoleLine
 extern int ConsoleActive;
 
 void InitializeConsole(const char *path);
+void AddConsoleHook(const char *namespaceName, const char *name, int type, void (*proc)(), void *val);
+void PrintConsoleLine(const char *line);
 void OpenConsole();
 void CloseConsole();
 

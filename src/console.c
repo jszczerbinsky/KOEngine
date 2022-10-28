@@ -101,7 +101,7 @@ void updateConsoleLinesTex()
 	}
 }
 
-void AddConsoleLine(const char *line)
+void PrintConsoleLine(const char *line)
 {
 	for(int i = CONSOLE_LINES_MAX-1; i > 0; i--)
 		strcpy(consoleLines[i].str, consoleLines[i-1].str);
@@ -120,14 +120,23 @@ void consolePrintHelp(struct ConsoleHookNamespace *namespace)
 			if(currentHook->namespace == namespace)
 			{
 				const char *typeStr = "????";
-				if(currentHook->procedure)
-					typeStr = "Proc";
-				else if(currentHook->value)
-					typeStr = "Int ";
+				switch(currentHook->type)
+				{
+					case CONSOLEHOOK_PROC:
+						typeStr = "Proc ";
+						break;
+					case CONSOLEHOOK_INT:
+						typeStr = "Int  ";
+						break;
+					case CONSOLEHOOK_FLOAT:
+						typeStr = "Float";
+						break;
+
+				}
 
 				char str[CONSOLE_LINE_LENGTH];
 				snprintf(str, CONSOLE_LINE_LENGTH, "  %s    %s.%s", typeStr, currentHook->namespace->name, currentHook->name);
-				AddConsoleLine(str);
+				PrintConsoleLine(str);
 			}
 			currentHook = currentHook->next;
 		}
@@ -139,7 +148,7 @@ void consolePrintHelp(struct ConsoleHookNamespace *namespace)
 		{
 			char str[CONSOLE_LINE_LENGTH];
 			snprintf(str, CONSOLE_LINE_LENGTH, "  %s", currentHookN->name);
-			AddConsoleLine(str);
+			PrintConsoleLine(str);
 			currentHookN = currentHookN->next;
 		}
 	}
@@ -170,6 +179,7 @@ void consoleExecute(const char *cmd)
 		{
 			char namespaceName[CONSOLE_LINE_LENGTH];
 			strncpy(namespaceName, cmd, namespaceLength);
+			namespaceName[namespaceLength] = '\0';
 			struct ConsoleHookNamespace *namespace = findConsoleNamespace(namespaceName);
 			if(namespace)
 			{
@@ -185,7 +195,7 @@ void consoleExecute(const char *cmd)
 
 				while(currentHook)
 				{
-					if(currentHook->namespace == namespace && strlen(currentHook->name) == wordLength && strncmp(currentHook->name, cmd+namespaceLength+1, wordLength) == 0)
+					if(currentHook->namespace == namespace && strncmp(currentHook->name, cmd+namespaceLength+1, wordLength) == 0)
 					{
 						if(currentHook->type == CONSOLEHOOK_PROC)
 							(*currentHook->procedure)();
@@ -206,7 +216,7 @@ void consoleExecute(const char *cmd)
 									snprintf(str, CONSOLE_LINE_LENGTH, "%s = %d", currentHook->name, *((int*)currentHook->value));	
 								else
 									snprintf(str, CONSOLE_LINE_LENGTH, "%s = %f", currentHook->name, *((float*)currentHook->value));	
-								AddConsoleLine(str);
+								PrintConsoleLine(str);
 							}
 						}
 						return;	
@@ -215,7 +225,7 @@ void consoleExecute(const char *cmd)
 				}
 			}
 		}
-		AddConsoleLine("Command not found");
+		PrintConsoleLine("Command not found");
 	}
 }
 
