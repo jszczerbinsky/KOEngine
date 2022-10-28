@@ -11,7 +11,8 @@ struct ConsoleHook
 	struct ConsoleHookNamespace *namespace;
 	const char *name;
 	void (*procedure)();
-	int *value;	
+	void *value;	
+	int type;
 	struct ConsoleHook *next;
 };
 
@@ -40,7 +41,7 @@ struct ConsoleHookNamespace *findConsoleNamespace(const char *name)
 	return NULL;
 }
 
-void AddConsoleHook(const char *namespace, const char *name, void (*proc)(), int *val)
+void AddConsoleHook(const char *namespace, const char *name, int type, void (*proc)(), void *val)
 {
 	struct ConsoleHookNamespace *cHookN = findConsoleNamespace(namespace);
 
@@ -60,6 +61,7 @@ void AddConsoleHook(const char *namespace, const char *name, void (*proc)(), int
 	hook->name = name;
 	hook->procedure = proc;
 	hook->value = val;
+	hook->type = type;
 }
 
 void updateConsoleLinesTex()
@@ -185,19 +187,25 @@ void consoleExecute(const char *cmd)
 				{
 					if(currentHook->namespace == namespace && strlen(currentHook->name) == wordLength && strncmp(currentHook->name, cmd+namespaceLength+1, wordLength) == 0)
 					{
-						if(currentHook->procedure)
+						if(currentHook->type == CONSOLEHOOK_PROC)
 							(*currentHook->procedure)();
-						else if(currentHook->value)
+						else
 						{
 							if(*ptr == ' ')
 							{
 								ptr++;
-								*(currentHook->value) = atoi(ptr);
+								if(currentHook->type == CONSOLEHOOK_INT)
+									*((int*)currentHook->value) = atoi(ptr);
+								else
+									*((float*)currentHook->value) = atof(ptr);
 							}
 							else
 							{
 								char str[CONSOLE_LINE_LENGTH];
-								snprintf(str, CONSOLE_LINE_LENGTH, "%s = %d", currentHook->name, *(currentHook->value));	
+								if(currentHook->type == CONSOLEHOOK_INT)
+									snprintf(str, CONSOLE_LINE_LENGTH, "%s = %d", currentHook->name, *((int*)currentHook->value));	
+								else
+									snprintf(str, CONSOLE_LINE_LENGTH, "%s = %f", currentHook->name, *((float*)currentHook->value));	
 								AddConsoleLine(str);
 							}
 						}
@@ -250,7 +258,8 @@ void InitializeConsole(const char *path)
 	}
 
 	updateConsoleLinesTex();
-	AddConsoleHook("ENGINE", "DEBUG-FLAGS", NULL, &DebugFlags);
+	AddConsoleHook("ENGINE", "DEBUG-FLAGS", CONSOLEHOOK_INT, NULL, &DebugFlags);
+	AddConsoleHook("ENGINE", "QUIT", CONSOLEHOOK_PROC, &KOEngineExit, NULL);
 }
 
 void freeConsole()

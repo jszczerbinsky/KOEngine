@@ -10,6 +10,10 @@
 #define CONSOLE_BG 50, 50, 50, 255
 #define CONSOLE_PADDING 10
 
+#define CONSOLEHOOK_PROC 0
+#define CONSOLEHOOK_INT 1
+#define CONSOLEHOOK_FLOAT 2
+
 struct ConsoleLine
 {
 	char str[CONSOLE_LINE_LENGTH];
