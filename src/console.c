@@ -8,22 +8,55 @@ struct ConsoleLine consoleLines[CONSOLE_LINES_MAX];
 
 struct ConsoleHook
 {
+	struct ConsoleHookNamespace *namespace;
 	const char *name;
 	void (*procedure)();
 	int *value;	
 	struct ConsoleHook *next;
 };
 
-struct ConsoleHook *consoleHooks;
+struct ConsoleHookNamespace
+{
+	const char *name;
+	struct ConsoleHookNamespace *next;
+};
+
+struct ConsoleHook *consoleHooks = NULL;
+struct ConsoleHookNamespace *consoleHookNamespaces = NULL;
 
 int ConsoleActive = 0;
 
-void AddConsoleHook(const char *name, void (*proc)(), int *val)
+struct ConsoleHookNamespace *findConsoleNamespace(const char *name)
 {
+	struct ConsoleHookNamespace *cHookN = consoleHookNamespaces;
+	while(cHookN)
+	{
+		struct ConsoleHookNamespace *next = cHookN->next;
+
+		if(strcmp(name, cHookN->name) == 0) return cHookN;
+
+		cHookN = next;
+	}
+	return NULL;
+}
+
+void AddConsoleHook(const char *namespace, const char *name, void (*proc)(), int *val)
+{
+	struct ConsoleHookNamespace *cHookN = findConsoleNamespace(namespace);
+
+	if(cHookN == NULL)
+	{
+		cHookN = malloc(sizeof(struct ConsoleHookNamespace));
+		cHookN->name = namespace;
+		cHookN->next = consoleHookNamespaces;
+		consoleHookNamespaces = cHookN;
+	}
+
 	struct ConsoleHook *hook = malloc(sizeof(struct ConsoleHook));
 	hook->next = consoleHooks;
 	consoleHooks = hook;
 
+	hook->namespace = cHookN;
 	hook->name = name;
 	hook->procedure = proc;
 	hook->value = val;
@@ -74,62 +107,108 @@ void AddConsoleLine(const char *line)
 	updateConsoleLinesTex();
 }
 
-void consolePrintHelp()
+void consolePrintHelp(struct ConsoleHookNamespace *namespace)
 {
-	struct ConsoleHook *currentHook = consoleHooks;
-
-	while(currentHook)
+	if(namespace)
 	{
-		const char *typeStr = "????";
-		if(currentHook->procedure)
-			typeStr = "Proc";
-		else if(currentHook->value)
-			typeStr = "Int ";
+		struct ConsoleHook *currentHook = consoleHooks;
 
-		char str[CONSOLE_LINE_LENGTH];
-		snprintf(str, CONSOLE_LINE_LENGTH, "  %s    %s", typeStr, currentHook->name);
-		AddConsoleLine(str);
-		currentHook = currentHook->next;
+		while(currentHook)
+		{
+			if(currentHook->namespace == namespace)
+			{
+				const char *typeStr = "????";
+				if(currentHook->procedure)
+					typeStr = "Proc";
+				else if(currentHook->value)
+					typeStr = "Int ";
+
+				char str[CONSOLE_LINE_LENGTH];
+				snprintf(str, CONSOLE_LINE_LENGTH, "  %s    %s.%s", typeStr, currentHook->namespace->name, currentHook->name);
+				AddConsoleLine(str);
+			}
+			currentHook = currentHook->next;
+		}
+	}
+	else
+	{
+		struct ConsoleHookNamespace *currentHookN = consoleHookNamespaces;
+		while(currentHookN)
+		{
+			char str[CONSOLE_LINE_LENGTH];
+			snprintf(str, CONSOLE_LINE_LENGTH, "  %s", currentHookN->name);
+			AddConsoleLine(str);
+			currentHookN = currentHookN->next;
+		}
 	}
 }
 
 void consoleExecute(const char *cmd)
 {
-	int wordLength = 0;
-	const char *ptr = cmd;
-	while(*ptr != '\0' && *ptr != ' ')
-	{
-		ptr++;
-		wordLength++;
-	}
+	if((strlen(cmd) == 4 && strncmp(cmd, "HELP", 4) == 0) || (strlen(cmd) > 4 && strncmp(cmd, "HELP ", 5) == 0))
 
-	struct ConsoleHook *currentHook = consoleHooks;
-
-	while(currentHook)
 	{
-		if(strncmp(currentHook->name, cmd, wordLength) == 0)
+		if(strlen(cmd) > 5)
 		{
-			if(currentHook->procedure)
-				(*currentHook->procedure)();
-			else if(currentHook->value)
+			consolePrintHelp(findConsoleNamespace(cmd+5));
+		}
+		else
+			consolePrintHelp(NULL);
+	}
+	else
+	{
+		const char *ptr = cmd;
+		int namespaceLength = 0;
+		while(*ptr != '\0' && *ptr != '.')
+		{
+			ptr++;
+			namespaceLength++;
+		}
+		if(*ptr != '\0')
+		{
+			char namespaceName[CONSOLE_LINE_LENGTH];
+			strncpy(namespaceName, cmd, namespaceLength);
+			struct ConsoleHookNamespace *namespace = findConsoleNamespace(namespaceName);
+			if(namespace)
 			{
-				if(*ptr == ' ')
+				ptr++;
+				int wordLength = 0;
+				while(*ptr != '\0' && *ptr != ' ')
 				{
 					ptr++;
-					*(currentHook->value) = atoi(ptr);
+					wordLength++;
 				}
-				else
+
+				struct ConsoleHook *currentHook = consoleHooks;
+
+				while(currentHook)
 				{
-					char str[CONSOLE_LINE_LENGTH];
-					snprintf(str, CONSOLE_LINE_LENGTH, "%s = %d", currentHook->name, *(currentHook->value));	
-					AddConsoleLine(str);
+					if(currentHook->namespace == namespace && strlen(currentHook->name) == wordLength && strncmp(currentHook->name, cmd+namespaceLength+1, wordLength) == 0)
+					{
+						if(currentHook->procedure)
+							(*currentHook->procedure)();
+						else if(currentHook->value)
+						{
+							if(*ptr == ' ')
+							{
+								ptr++;
+								*(currentHook->value) = atoi(ptr);
+							}
+							else
+							{
+								char str[CONSOLE_LINE_LENGTH];
+								snprintf(str, CONSOLE_LINE_LENGTH, "%s = %d", currentHook->name, *(currentHook->value));	
+								AddConsoleLine(str);
+							}
+						}
+						return;	
+					}
+					currentHook = currentHook->next;
 				}
 			}
-			return;	
 		}
-		currentHook = currentHook->next;
+		AddConsoleLine("Command not found");
 	}
-	AddConsoleLine("Command not found");
 }
 
 
@@ -171,8 +250,7 @@ void InitializeConsole(const char *path)
 	}
 
 	updateConsoleLinesTex();
-	AddConsoleHook("HELP", &consolePrintHelp, NULL);
-	AddConsoleHook("DEBUG-FLAGS", NULL, &DebugFlags);
+	AddConsoleHook("ENGINE", "DEBUG-FLAGS", NULL, &DebugFlags);
 }
 
 void freeConsole()
@@ -180,6 +258,21 @@ void freeConsole()
 	for(int i = 0; i < CONSOLE_LINES_MAX; i++)
 		if(consoleLines[i].tex)
 			SDL_DestroyTexture(consoleLines[i].tex);
+
+	struct ConsoleHook *cHook = consoleHooks;
+	while(cHook)
+	{
+		struct ConsoleHook *next = cHook->next;
+		free(cHook);
+		cHook = next;
+	}
+	struct ConsoleHookNamespace *cHookN = consoleHookNamespaces;
+	while(cHookN)
+	{
+		struct ConsoleHookNamespace *next = cHookN->next;
+		free(cHook);
+		cHookN = next;
+	}
 }
 
 void OpenConsole()

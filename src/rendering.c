@@ -33,7 +33,7 @@ void renderConsole()
 	{
 		int w, h;
 		SDL_QueryTexture(consoleLines[i].tex, NULL, NULL, &w, &h);
-		y -= h;
+		y -= h+4;
 		if(y < bgRect.y+CONSOLE_PADDING) return;
 
 		SDL_Rect dest = {
