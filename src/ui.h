@@ -27,6 +27,6 @@ Font *LoadFont(char *path, int size, SDL_Color color);
 void CloseFont(Font *font);
 
 GameObject *CreateUIObject(const struct GameObjectSpawnSettings *s, const struct UISpawnSettings *uis);
-void SetUIText(GameObject *ent, char *text);
+void SetUIText(GameObject *ent, const char *text);
 
 #endif

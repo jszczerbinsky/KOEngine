@@ -189,11 +189,11 @@ void renderLightTint()
 	SDL_SetRenderTarget(renderer, NULL);
 }
 
-void renderTextLineOnTextTexture(unsigned int *y, GameObject *ent, char **ptr, int countOnly)
+void renderTextLineOnTextTexture(unsigned int *y, GameObject *ent, const char **ptr, int countOnly)
 {
 	unsigned short totalWidth = 0;
 
-	char *ptr2 = *ptr;
+	const char *ptr2 = *ptr;
 
 	while(*ptr2 != '\n' && *ptr2 != '\0')
 	{
@@ -272,7 +272,7 @@ void renderTextLineOnTextTexture(unsigned int *y, GameObject *ent, char **ptr, i
 	}
 }
 
-void renderTextOnTextTexture(GameObject *ent, char *text)
+void renderTextOnTextTexture(GameObject *ent, const char *text)
 {
 	SDL_SetRenderTarget(renderer, ent->ui->textTexture);
 	SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0);
@@ -285,7 +285,7 @@ void renderTextOnTextTexture(GameObject *ent, char *text)
 	}
 	
 	unsigned int totalHeight = ent->ui->font->height;
-	char *ptr = text;
+	const char *ptr = text;
 
 	unsigned int y = 0;
 
