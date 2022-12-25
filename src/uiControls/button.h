@@ -15,5 +15,6 @@ struct ButtonSettings
 };
 
 GameObject *CreateButton(const struct GameObjectSpawnSettings *ess, const struct UISpawnSettings *uis, const struct ButtonSettings *s);
+void UpdateButtonSettings(GameObject *obj, const struct ButtonSettings *s);
 
 #endif

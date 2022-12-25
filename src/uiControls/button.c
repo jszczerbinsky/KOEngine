@@ -29,6 +29,17 @@ void ButtonLoopCall(GameObject *e)
 		e->currentTexture = e->defaultTexture;
 }
 
+void UpdateButtonSettings(GameObject *obj, const struct ButtonSettings *s)
+{
+	struct ButtonInstance *btnHook = (struct ButtonInstance*) obj->extension;
+
+	btnHook->texHover = s->texHover;
+	btnHook->texClick = s->texClick;
+	btnHook->clickAction = s->clickAction;
+	btnHook->rightClickAction = s->rightClickAction;
+	btnHook->clickParam = s->clickParam;
+}	
+
 GameObject *CreateButton(const struct GameObjectSpawnSettings *ess, const struct UISpawnSettings *uis, const struct ButtonSettings *s)
 {
 	GameObject *e = CreateUIObject(ess, uis);
