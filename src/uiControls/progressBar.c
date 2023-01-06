@@ -1,80 +1,63 @@
-#include "../types.h"
 #include "progressBar.h"
+
+#include "../types.h"
 
 struct ProgressBarInstance
 {
-	GameObject *progress;
-	GameObject *bg;
-	float value;
-	float minValue;
-	float maxValue;
+  GameObject *progress;
+  GameObject *bg;
+  float       value;
+  float       minValue;
+  float       maxValue;
 };
 
-void freeProgressBarInstance(void *pbHookPtr, int killingAll)
+static void freeProgressBarInstance(void *pbHookPtr, int killingAll)
 {
-	struct ProgressBarInstance *pbHook = (struct ProgressBarInstance *)pbHookPtr;
-	
-	if(!killingAll)
-	{
-		KillGameObject(pbHook->bg);
-		KillGameObject(pbHook->progress);
-	}
+  struct ProgressBarInstance *pbHook = (struct ProgressBarInstance *)pbHookPtr;
+
+  if (!killingAll)
+  {
+    KillGameObject(pbHook->bg);
+    KillGameObject(pbHook->progress);
+  }
 }
 
 void SetProgressBarValue(GameObject *e, float val)
 {
-	struct ProgressBarInstance *pbHook = (struct ProgressBarInstance *) e->extension;
+  struct ProgressBarInstance *pbHook = (struct ProgressBarInstance *)e->extension;
 
-	if(val < pbHook->minValue) val = pbHook->minValue;
-	else if(val > pbHook->maxValue) val = pbHook->maxValue;
+  if (val < pbHook->minValue)
+    val = pbHook->minValue;
+  else if (val > pbHook->maxValue)
+    val = pbHook->maxValue;
 
-	pbHook->value = val;
+  pbHook->value = val;
 
-	pbHook->progress->width =	e->width * (val - pbHook->minValue) / pbHook->maxValue;
-	pbHook->progress->localPosition.x = pbHook->progress->width/2 - (float)e->width/2;
+  pbHook->progress->width           = e->width * (val - pbHook->minValue) / pbHook->maxValue;
+  pbHook->progress->localPosition.x = pbHook->progress->width / 2 - (float)e->width / 2;
 };
 
-GameObject *CreateProgressBar(const struct GameObjectSpawnSettings *ess, const struct UISpawnSettings *uis, const struct ProgressBarSettings *pbs)
+GameObject *SpawnProgressBar(float x, float y, unsigned int w, unsigned int h, Texture *tex,
+                             unsigned int layer, unsigned int uiFlags, Font *font,
+                             ProgressBarSettings *s)
+
 {
-	const struct UISpawnSettings noTextUis = {
-		.font = NULL,
-		.flags = 0
-	};
+  GameObject *obj = SpawnUiObject(x, y, w, h, NULL, s->labelLayer, uiFlags, font);
 
-	struct GameObjectSpawnSettings labelEss;
-	memcpy(&labelEss, ess, sizeof(struct GameObjectSpawnSettings));
-	labelEss.texture = NULL;
-	labelEss.layer = pbs->labelLayer;
+  obj->freeExtension = &freeProgressBarInstance;
+  obj->extension     = malloc(sizeof(struct ProgressBarInstance));
+  obj->extensionType = EXT_UICONTROLS_PROGRESSBAR;
 
-	GameObject *e = CreateUIObject(&labelEss, uis);
+  struct ProgressBarInstance *pbHook = (struct ProgressBarInstance *)obj->extension;
+  pbHook->minValue                   = s->minValue;
+  pbHook->maxValue                   = s->maxValue;
+  pbHook->value                      = 0;
 
-	e->freeExtension = &freeProgressBarInstance;
-	e->extension = malloc(sizeof(struct ProgressBarInstance));
-	e->extensionType = EXT_UICONTROLS_PROGRESSBAR;
-	
-	struct ProgressBarInstance *pbHook = (struct ProgressBarInstance *) e->extension;
-	pbHook->minValue = pbs->minValue;
-	pbHook->maxValue = pbs->maxValue;
-	pbHook->value = 0;
+  pbHook->bg         = SpawnUiObject(0, 0, w, h, tex, layer, 0, NULL);
+  pbHook->bg->parent = obj;
 
-	struct GameObjectSpawnSettings bgEss;
-	memcpy(&bgEss, ess, sizeof(struct GameObjectSpawnSettings));
-	bgEss.x = 0;
-	bgEss.y = 0;
+  pbHook->progress         = SpawnUiObject(0, 0, 0, h, s->texProgress, s->progressLayer, 0, NULL);
+  pbHook->progress->parent = obj;
 
-	pbHook->bg = CreateUIObject(&bgEss, &noTextUis);
-	pbHook->bg->parent = e;
-
-	struct GameObjectSpawnSettings pEss;
-	memcpy(&pEss, ess, sizeof(struct GameObjectSpawnSettings));
-	pEss.width = 0;
-	pEss.x = 0;
-	pEss.y = 0;
-	pEss.texture = pbs->texProgress;
-	pEss.layer = pbs->progressLayer;
-
-	pbHook->progress = CreateUIObject(&pEss, &noTextUis);
-	pbHook->progress->parent = e;
-
-	return e;
+  return obj;
 }

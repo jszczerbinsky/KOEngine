@@ -1,38 +1,35 @@
 #include "textures.h"
+
 #include "log.h"
 
-extern SDL_Renderer *renderer;
+extern SDL_Renderer* renderer;
 
-Texture* LoadTexture(const char * path)
+Texture* LoadTexture(const char* path)
 {
-	SDL_Surface * surf = SDL_LoadBMP(path);
+  SDL_Surface* surf = SDL_LoadBMP(path);
 
-	if(surf == NULL)
-		Log("WARNING, can't load texture surface: %s", SDL_GetError());
+  if (surf == NULL) Log("WARNING, can't load texture surface (%s): %s", path, SDL_GetError());
 
-	SDL_Texture * texture = SDL_CreateTextureFromSurface(renderer, surf);
+  SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surf);
 
-	if(texture == NULL)
-		Log("WARNING, can't initialize texture: %s", SDL_GetError());
+  if (texture == NULL) Log("WARNING, can't initialize texture (%s): %s", path, SDL_GetError());
 
-	SDL_FreeSurface(surf);
+  SDL_FreeSurface(surf);
 
-	return texture;
+  return texture;
 }
 
 Texture* CreateColorTexture(unsigned char r, unsigned char g, unsigned char b, unsigned char a)
 {
-	SDL_Texture * texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, 1,1);
+  SDL_Texture* texture =
+      SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, 1, 1);
 
-	SDL_SetRenderTarget(renderer, texture);
-	SDL_SetRenderDrawColor(renderer, r, g, b, a);
-	SDL_RenderClear(renderer);
-	SDL_SetRenderTarget(renderer, NULL);
+  SDL_SetRenderTarget(renderer, texture);
+  SDL_SetRenderDrawColor(renderer, r, g, b, a);
+  SDL_RenderClear(renderer);
+  SDL_SetRenderTarget(renderer, NULL);
 
-	return texture;
+  return texture;
 }
 
-void FreeTexture(Texture *tex)
-{
-	SDL_DestroyTexture(tex);
-}
+void FreeTexture(Texture* tex) { SDL_DestroyTexture(tex); }

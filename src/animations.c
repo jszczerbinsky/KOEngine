@@ -1,54 +1,56 @@
-#include <stdarg.h>
-#include <math.h>
-#include <stdio.h>
 #include "animations.h"
+
+#include <math.h>
+#include <stdarg.h>
+#include <stdio.h>
+
 #include "textures.h"
 
-Animation * CreateAnimation(float speed, int count, ...)
+Animation *CreateAnimation(float speed, int count, ...)
 {
-	va_list ap;
-	va_start(ap, count);
+  va_list ap;
+  va_start(ap, count);
 
-	Animation *anim = malloc(sizeof(Animation));
+  Animation *anim = malloc(sizeof(Animation));
 
-	anim->texturesCount = count;
-	anim->speed = speed;
-	anim->textures = malloc(count * sizeof(SDL_Texture*));
+  anim->texturesCount = count;
+  anim->speed         = speed;
+  anim->textures      = malloc(count * sizeof(SDL_Texture *));
 
-	for(unsigned char i = 0; i < count; i++)
-	{
-		anim->textures[i] = va_arg(ap, SDL_Texture*);
-	}
+  for (unsigned char i = 0; i < count; i++)
+  {
+    anim->textures[i] = va_arg(ap, SDL_Texture *);
+  }
 
-	va_end(ap);
+  va_end(ap);
 
-	return anim;
+  return anim;
 }
 
-Animation * LoadAnimation(float speed, int count, const char * path)
+Animation *LoadAnimation(float speed, int count, const char *path)
 {
-	Animation *anim = malloc(sizeof(Animation));
+  Animation *anim = malloc(sizeof(Animation));
 
-	anim->texturesCount = count;
-	anim->speed = speed;
-	anim->textures = malloc(count * sizeof(SDL_Texture*));
+  anim->texturesCount = count;
+  anim->speed         = speed;
+  anim->textures      = malloc(count * sizeof(SDL_Texture *));
 
-	for(int i = 0; i < count; i++)
-	{
-		char * framePath = malloc(strlen(path) + 10);	
-		snprintf(framePath, strlen(path) + 10, "%s/%d.bmp", path, i+1);
+  for (int i = 0; i < count; i++)
+  {
+    char *framePath = malloc(strlen(path) + 10);
+    snprintf(framePath, strlen(path) + 10, "%s/%d.bmp", path, i + 1);
 
-		anim->textures[i] = LoadTexture(framePath);
+    anim->textures[i] = LoadTexture(framePath);
 
-		free(framePath);
-	}	
+    free(framePath);
+  }
 
-	return anim;
+  return anim;
 }
 
 void FreeAnimation(Animation *anim)
 {
-	free(anim->textures);
-	free(anim);
+  free(anim->textures);
+  free(anim);
 }
 

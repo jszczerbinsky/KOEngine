@@ -3,8 +3,8 @@
 
 #include <SDL2/SDL.h>
 
-#define LOCK()    SDL_LockMutex(MainLock)
-#define UNLOCK()  SDL_UnlockMutex(MainLock)
+#define LOCK()   SDL_LockMutex(MainLock)
+#define UNLOCK() SDL_UnlockMutex(MainLock)
 
 extern SDL_mutex *MainLock;
 

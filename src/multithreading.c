@@ -2,12 +2,6 @@
 
 SDL_mutex *MainLock;
 
-void initMultithreading()
-{
-	MainLock = SDL_CreateMutex();
-}
+void initMultithreading() { MainLock = SDL_CreateMutex(); }
 
-void freeMultithreading()
-{
-	SDL_DestroyMutex(MainLock);
-}
+void freeMultithreading() { SDL_DestroyMutex(MainLock); }

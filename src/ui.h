@@ -7,26 +7,21 @@
 #define UI_PARAMETERS_FLAGS_VERTICAL_ALIGN_MASK   0b00001100
 #define UI_PARAMETERS_FLAGS_TEXTWRAP_MASK         0b00110000
 
-#define TEXT_ALIGN_H_LEFT     0b00000000
-#define TEXT_ALIGN_H_RIGHT    0b00000001
-#define TEXT_ALIGN_H_CENTER   0b00000010
-#define TEXT_ALIGN_V_TOP      0b00000000
-#define TEXT_ALIGN_V_BOTTOM   0b00000100 
-#define TEXT_ALIGN_V_CENTER   0b00001000
-#define TEXT_WRAP_NO_WRAP     0b00000000
-#define TEXT_WRAP_WORD_BREAK  0b00010000
-#define TEXT_WRAP_NORMAL      0b00100000
-
-struct UISpawnSettings
-{
-  unsigned int  flags;
-  Font         *font;
-};
+#define TEXT_ALIGN_H_LEFT    0b00000000
+#define TEXT_ALIGN_H_RIGHT   0b00000001
+#define TEXT_ALIGN_H_CENTER  0b00000010
+#define TEXT_ALIGN_V_TOP     0b00000000
+#define TEXT_ALIGN_V_BOTTOM  0b00000100
+#define TEXT_ALIGN_V_CENTER  0b00001000
+#define TEXT_WRAP_NO_WRAP    0b00000000
+#define TEXT_WRAP_WORD_BREAK 0b00010000
+#define TEXT_WRAP_NORMAL     0b00100000
 
 Font *LoadFont(char *path, int size, SDL_Color color);
-void CloseFont(Font *font);
+void  CloseFont(Font *font);
 
-GameObject *CreateUIObject(const struct GameObjectSpawnSettings *s, const struct UISpawnSettings *uis);
-void SetUIText(GameObject *ent, const char *text);
+GameObject *SpawnUiObject(float x, float y, unsigned int w, unsigned int h, Texture *tex,
+                          unsigned int layer, unsigned int uiFlags, Font *font);
+void        SetUiText(GameObject *ent, const char *text);
 
 #endif

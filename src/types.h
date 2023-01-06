@@ -2,20 +2,20 @@
 #define KO_TYPES_H
 
 #include <SDL2/SDL.h>
-#include <SDL2/SDL_ttf.h>
 #include <SDL2/SDL_mixer.h>
-#include <stdint.h>
+#include <SDL2/SDL_ttf.h>
 #include <stdbool.h>
+#include <stdint.h>
 #ifdef _WIN32
-  #ifndef _WIN32_WINNT
-    #define _WIN32_WINNT 0x0501  /* Windows XP. */
-  #endif
-  #include <winsock2.h>
-  #include <Ws2tcpip.h>
+#ifndef _WIN32_WINNT
+#define _WIN32_WINNT 0x0501 /* Windows XP. */
+#endif
+#include <Ws2tcpip.h>
+#include <winsock2.h>
 #else
-  #include <sys/socket.h>
-  #include <arpa/inet.h>
-  #include <unistd.h>
+#include <arpa/inet.h>
+#include <sys/socket.h>
+#include <unistd.h>
 #endif
 
 #define FONT_GLYPH_MIN 20
@@ -26,31 +26,36 @@ typedef SDL_Color   Color;
 typedef SDL_Rect    Rect;
 typedef Mix_Music   Music;
 
-typedef struct {
-  Texture *glyphs             [FONT_GLYPH_MAX-FONT_GLYPH_MIN];
-  unsigned int glyphWidths  [FONT_GLYPH_MAX-FONT_GLYPH_MIN];
+typedef struct
+{
+  Texture     *glyphs[FONT_GLYPH_MAX - FONT_GLYPH_MIN];
+  unsigned int glyphWidths[FONT_GLYPH_MAX - FONT_GLYPH_MIN];
   unsigned int height;
 } Font;
 
-typedef struct {
-  int channel;
+typedef struct
+{
+  int        channel;
   Mix_Chunk *chunk;
 } SoundEffect;
 
-typedef struct {
+typedef struct
+{
   float x;
   float y;
 } Vector2D;
 
-typedef struct {
-  Vector2D *vertices;
+typedef struct
+{
+  Vector2D    *vertices;
   unsigned int verticesCount;
 } Collider;
 
-typedef struct {
-  unsigned int texturesCount;
+typedef struct
+{
+  unsigned int  texturesCount;
   SDL_Texture **textures;
-  float speed;
+  float         speed;
 } Animation;
 
 typedef enum
@@ -64,30 +69,31 @@ typedef enum
 
 typedef struct
 {
-  Texture *textTexture;
-  SDL_Color debugColor;
-  Font *font;
+  Texture     *textTexture;
+  SDL_Color    debugColor;
+  Font        *font;
   unsigned int flags;
 } UIParameters;
 
 typedef struct
 {
-	unsigned int width;
-	unsigned int height;
-	Texture *tex;
+  unsigned int width;
+  unsigned int height;
+  Texture     *tex;
 } LightParameters;
 
 typedef unsigned int NetworkID;
 
-typedef struct GameObject_{
-	int active;
+typedef struct GameObject_
+{
+  int active;
 
   NetworkID networkID;
 
   unsigned int layer;
 
-  UIParameters *ui;
-	LightParameters *light;
+  UIParameters    *ui;
+  LightParameters *light;
 
   struct GameObject_ *next;
   struct GameObject_ *prev;
@@ -95,23 +101,23 @@ typedef struct GameObject_{
   struct GameObject_ *parent;
 
   Vector2D localPosition;
-  float localRotation;
+  float    localRotation;
 
   unsigned int width;
   unsigned int height;
-  
+
   SDL_Texture *currentTexture;
   SDL_Texture *defaultTexture;
 
   Animation *currentAnimation;
-  float animationCounter;
+  float      animationCounter;
 
-  void (*onAnimationEnd)(struct GameObject_ *obj, Animation* anim);
+  void (*onAnimationEnd)(struct GameObject_ *obj, Animation *anim);
 
   SDL_RendererFlip flip;
 
-  Collider collider;  
-  int colliderMode;
+  Collider collider;
+  int      colliderMode;
   void (*onCollision)(struct GameObject_ *obj, struct GameObject_ *obj2, int *ignoreCollision);
 
   void (*loopCall)(struct GameObject_ *obj);
@@ -119,13 +125,13 @@ typedef struct GameObject_{
   void (*freeExtension)(void *extension, int killingAll);
 
   unsigned int extensionType;
-  void *extension;
+  void        *extension;
 } GameObject;
 
 typedef struct NetworkClient_
 {
   struct sockaddr address;
-  time_t lastDatagram;
+  time_t          lastDatagram;
 
   void *extension;
 

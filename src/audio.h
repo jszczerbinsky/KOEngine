@@ -3,21 +3,21 @@
 
 #include "types.h"
 
-struct PlayMusicSettings
+typedef struct
 {
   unsigned int fadeInTime;
-  double startPos;
-};
+  double       startPos;
+} MusicSettings;
 
-SoundEffect  *LoadSoundEffect (const char *path, int channel);
-void          FreeSoundEffect (SoundEffect *effect);
-void          SoundPlay       (SoundEffect *effect);
-void          HaltChannel     (int channel);
+SoundEffect *LoadSoundEffect(const char *path, int channel);
+void         FreeSoundEffect(SoundEffect *effect);
+void         SoundPlay(SoundEffect *effect);
+void         HaltChannel(int channel);
 
-Music *LoadMusic  (const char *path);
-void FreeMusic    (Music *music);
-void MusicPlay    (Music *music, const struct PlayMusicSettings *s);
-void MusicPause   ();
-void MusicResume  ();
+Music *LoadMusic(const char *path);
+void   FreeMusic(Music *music);
+void   MusicPlay(Music *music, const MusicSettings *s);
+void   MusicPause();
+void   MusicResume();
 
 #endif

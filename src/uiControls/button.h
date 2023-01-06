@@ -5,16 +5,17 @@
 #include "../ui.h"
 #include "extensions.h"
 
-struct ButtonSettings
+typedef struct
 {
-	Texture *texHover;
-	Texture *texClick;
-	void *clickParam;
-	void (*clickAction)(GameObject *btn, void *p);
-	void (*rightClickAction)(GameObject *btn, void *p);
-};
+  Texture *texHover;
+  Texture *texClick;
+  void    *clickParam;
+  void (*clickAction)(GameObject *btn, void *p);
+  void (*rightClickAction)(GameObject *btn, void *p);
+} ButtonSettings;
 
-GameObject *CreateButton(const struct GameObjectSpawnSettings *ess, const struct UISpawnSettings *uis, const struct ButtonSettings *s);
-void UpdateButtonSettings(GameObject *obj, const struct ButtonSettings *s);
+GameObject *SpawnButton(float x, float y, unsigned int w, unsigned int h, Texture *tex,
+                        unsigned int layer, unsigned int uiFlags, Font *font, ButtonSettings *s);
+void        UpdateButtonSettings(GameObject *obj, const ButtonSettings *s);
 
 #endif

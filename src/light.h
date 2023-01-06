@@ -5,9 +5,9 @@
 
 struct LightSettings
 {
-	int width;
-	int height;
-	Texture *texture;
+  int      width;
+  int      height;
+  Texture *texture;
 };
 
 void AssignLightSource(GameObject *obj, struct LightSettings *s);
