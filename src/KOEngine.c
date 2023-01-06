@@ -39,7 +39,7 @@ Resolution windowResolution = {.width = 800, .height = 600};
 
 Color windowBg = {.r = 0, .g = 0, .b = 0};
 
-float Delay = 0;
+float dTime = 0;
 
 Resolution GetResolution() { return windowResolution; }
 void       SetResolution(unsigned int width, unsigned int height)
@@ -191,7 +191,7 @@ void KOEngineInit(const KOEngineSettings *s)
     frameInit();
     getInput();
     int ticks = SDL_GetTicks();
-    Delay     = (ticks - timer) / 1000.0f;
+    dTime     = (ticks - timer) / 1000.0f;
     timer     = SDL_GetTicks();
 
     LOCK();

@@ -43,7 +43,7 @@ typedef struct
   unsigned int lightLayer;
 } KOEngineSettings;
 
-extern float Delay;
+extern float dTime;
 
 void KOEngineInit(const KOEngineSettings *s);
 void KOEngineExit();

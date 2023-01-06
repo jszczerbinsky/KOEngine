@@ -12,6 +12,13 @@ extern Resolution windowResolution;
 int    Rand(int min, int max) { return rand() % (max - min) + min; }
 double RandD() { return (double)rand() / RAND_MAX; }
 
+float Clamp(float val, float min, float max)
+{
+  if (val > max) return max;
+  if (val < min) return min;
+  return val;
+}
+
 Vector2D PositionScreenToWorld(Vector2D pos)
 {
   pos.x += GetCameraPosition().x;

@@ -309,7 +309,7 @@ void updateGameObjects()
 
         if (e->currentAnimation != NULL)
         {
-          e->animationCounter += Delay * e->currentAnimation->speed;
+          e->animationCounter += dTime * e->currentAnimation->speed;
           bool ended = false;
           while (e->animationCounter >= e->currentAnimation->texturesCount)
           {
