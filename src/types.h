@@ -26,6 +26,8 @@ typedef SDL_Color   Color;
 typedef SDL_Rect    Rect;
 typedef Mix_Music   Music;
 
+typedef int Timestamp;
+
 typedef struct
 {
   Texture     *glyphs[FONT_GLYPH_MAX - FONT_GLYPH_MIN];

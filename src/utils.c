@@ -64,6 +64,10 @@ Vector2D Lerp2D(Vector2D p1, Vector2D p2, float t)
   return p;
 }
 
+Timestamp GetTimestamp() { return SDL_GetTicks(); }
+
+float GetTimeDiff(Timestamp t2, Timestamp t1) { return (t2 - t1) / 1000.0f; }
+
 float Distance(Vector2D p1, Vector2D p2) { return sqrt(pow(p2.x - p1.x, 2) + pow(p2.y - p1.y, 2)); }
 
 bool CheckInside(GameObject *ent, Vector2D startPos, Vector2D endPos)

@@ -18,4 +18,7 @@ float Distance(Vector2D p1, Vector2D p2);
 
 bool CheckInside(GameObject *ent, Vector2D startPos, Vector2D endPos);
 
+Timestamp GetTimestamp();
+float     GetTimeDiff(Timestamp t1, Timestamp t2);
+
 #endif
