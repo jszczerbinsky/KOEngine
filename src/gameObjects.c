@@ -189,6 +189,45 @@ void SortLayer(unsigned int layer, int (*compare)(GameObject *, GameObject *))
   objList[layer] = sorted;
 }
 
+void SortSingleObjectInLayer(GameObject *obj, int (*compare)(GameObject *, GameObject *))
+{
+  removeGameObject(obj);
+
+  if (objList[obj->layer] == NULL)
+    addGameObject(obj, obj->layer);
+  else
+  {
+    GameObject *ptr  = objList[obj->layer];
+    GameObject *last = NULL;
+
+    while (ptr)
+    {
+      if ((*compare)(obj, ptr))
+      {
+        if (last)
+          last->next = obj;
+        else
+          objList[obj->layer] = obj;
+
+        ptr->prev = obj;
+
+        obj->prev = last;
+        obj->next = ptr;
+        return;
+      }
+
+      last = ptr;
+      ptr  = ptr->next;
+    }
+    if (last)
+      last->next = obj;
+    else
+      objList[obj->layer] = obj;
+    obj->prev = last;
+    obj->next = NULL;
+  }
+}
+
 GameObject *SpawnGameObject(float x, float y, unsigned int w, unsigned int h, Texture *tex,
                             unsigned int layer)
 {

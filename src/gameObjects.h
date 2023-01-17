@@ -27,5 +27,6 @@ bool CheckAnyCollision(GameObject *obj);
 NetworkID AssignNetworkID(GameObject *obj);
 
 void SortLayer(unsigned int layer, int (*compare)(GameObject *, GameObject *));
+void SortSingleObjectInLayer(GameObject *obj, int (*compare)(GameObject *, GameObject *));
 
 #endif
